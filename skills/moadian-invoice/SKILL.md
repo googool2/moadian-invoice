@@ -58,7 +58,8 @@ the system's raw message. Entries are from secondary sources; pass on `[UNVERIFI
 ## §4 Explain fields, types, rules
 Answer from the references and cite the section (e.g. "S1 §7-39"): `references/fields.md`
 (every field, Persian name, type, required), `references/invoice-types.md` (inty/inp/ins, enums,
-per-pattern matrix), `references/arithmetic-rules.md` (formulas, truncation, settlement). Not in
+per-pattern matrix), `references/arithmetic-rules.md` (formulas, truncation, settlement),
+`references/units.md` (`mu` unit codes: 1627 عدد, 164 کیلوگرم, …). Not in
 the references → say there is no sourced answer. Often guessed wrong: `dis` is the line total;
 `cap`/`insp` exclude VAT and are only for `setm=3`; `tob` 1 = natural, 2 = legal; truncate, never round.
 

@@ -260,3 +260,47 @@ def test_validate_is_pure(good):
     before = copy.deepcopy(good)
     V.validate(good)
     assert good == before
+
+
+# ------------------------------------------------- unit codes (RC_UMGS.ST_V1.18) ----
+@pytest.mark.parametrize("mu", ["1627", "164", "165", "169", "16134"])
+def test_listed_unit_codes_pass(good, mu):
+    good["body"][0]["mu"] = mu  # عدد, کیلوگرم, متر, تن, نفر-ماه (3- to 5-digit codes)
+    res = V.validate(good)
+    assert res["ok"] and res["warning_count"] == 0, res["warnings"]
+
+
+@pytest.mark.parametrize("mu", ["9999", "1601", "16106", "01627"])
+def test_unlisted_unit_code_is_a_warning_not_an_error(good, mu):
+    good["body"][0]["mu"] = mu
+    res = V.validate(good)
+    assert res["ok"], res["errors"]
+    [w] = res["warnings"]
+    assert (w["path"], w["rule"], w["code_hint"], w["actual"]) == ("body[0].mu", "unit-list", "0103502", mu)
+    assert "RC_UMGS.ST_V1.18" in w["source"]
+
+
+def test_unit_checked_on_every_line():
+    inv = load("invoice-type1-full.json")
+    inv["body"][1]["mu"] = "1234"
+    assert paths(V.validate(inv), "warnings") == ["body[1].mu"]
+
+
+def test_unit_in_persian_digits_gets_a_hint(good):
+    good["body"][0]["mu"] = "۱۶۲۷"
+    [w] = V.validate(good)["warnings"]
+    assert w["path"] == "body[0].mu" and "Latin digits" in w["message"]
+
+
+@pytest.mark.parametrize("mu", [1627, "16x", "123456789"])
+def test_badly_typed_unit_is_a_format_error_not_a_list_warning(good, mu):
+    good["body"][0]["mu"] = mu
+    res = V.validate(good)
+    assert "body[0].mu" in paths(res) and "body[0].mu" not in paths(res, "warnings")
+
+
+def test_missing_unit_list_is_a_note_not_a_crash(good, monkeypatch):
+    monkeypatch.setattr(V.spec, "units", lambda: {})
+    res = V.validate(good)
+    assert res["ok"] and res["warning_count"] == 0
+    assert any("units.md is missing" in n for n in res["notes"])

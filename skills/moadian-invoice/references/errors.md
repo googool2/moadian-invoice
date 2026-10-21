@@ -76,7 +76,7 @@ T=4 «فیلد «X» در الگوی صورتحساب ارسالی خارج از
 | 1300501 | مقدار فیلد «سریال صورتحساب» با اطلاعات سامانه منطبق نیست. | inno differs from the serial inside taxid (warning — invoice accepted) | inno, taxid | Send inno = taxid[11:21] (10 hex chars). | E1 E2 E8 E11 |
 | 0102004 | در مقدار وارد شده در فیلد «شناسه یکتا ثبت قرارداد فروشنده» الگو(^\d{12}$) رعایت نشده است. | Contract registration id format (error) | crn | Exactly 12 digits. | E8 |
 | 0302001 | مقدار فیلد «شناسه یکتا ثبت قرارداد فروشنده» با اطلاعات سامانه منطبق نیست. | Contract id not registered/confirmed (error) [UNVERIFIED full code; vendor prints 032001] | crn | Register the contract in کارپوشه and have the counter-party confirm it first. | E6 |
-| 0103502 | مقدار وارد شده در فیلد «واحد اندازه‌گیری» جز مقادیر مجاز نیست (template) | Measurement unit not an allowed code (error) | mu | Use a numeric unit code from the official unit list (RC_UMGS). | E7 |
+| 0103502 | مقدار وارد شده در فیلد «واحد اندازه‌گیری» جز مقادیر مجاز نیست (template) | Measurement unit not an allowed code (error) | mu | Use a code from the official unit list RC_UMGS.ST_V1.18, copied in `units.md`; `validate_invoice.py` warns on others. | E7 |
 | 0103504 | در مقدار وارد شده در فیلد «واحد اندازه‌گیری» الگو (regex) رعایت نشده است (template) | Measurement unit format (error) | mu | Digits only. | E7 |
 | 0103605 | (exclusiveMinimum) | am must be > 0 (error) | am | Quantity greater than zero. | E2 |
 | 0103705 | (exclusiveMinimum) | fee must be > 0 (error) | fee | Unit price greater than zero. | E2 |

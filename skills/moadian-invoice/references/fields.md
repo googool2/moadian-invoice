@@ -2,8 +2,8 @@
 
 Use this file to answer "what does field X mean / what type / is it required". Do not explain a
 field from memory: if it is not here, say so. Required-ness per type/pattern is in
-`invoice-types.md`; formulas are in `arithmetic-rules.md`. `scripts/validate_invoice.py` applies
-all of it (its machine-readable copy is `scripts/_spec.py`).
+`invoice-types.md`; formulas are in `arithmetic-rules.md`; unit codes for `mu` are in `units.md`.
+`scripts/validate_invoice.py` applies all of it (its machine-readable copy is `scripts/_spec.py`).
 
 ## Sources
 
@@ -12,6 +12,7 @@ all of it (its machine-readable copy is `scripts/_spec.py`).
 | S1 | **RC_IITP.IS_V7.8** «دستورالعمل صدور صورتحساب الکترونیکی», INTA, اردیبهشت ۱۴۰۵, 112 pp. Copy read from github.com/ali-hallaji/digi-tax-ops `docs/moadian/RC_IITP_IS_V7_8.pdf` (sha256 starts `2770f6a5`, ends `7355`) because intamedia.ir was unreachable | official |
 | S2 | **RC_TICS.IS v1.6** «دستورالعمل فنی اتصال به سامانه مودیان», شهریور ۱۴۰۴ (inner pages say v1.5). Same mirror (sha256 `a506795e…ec61`). Used for its worked JSON example | official |
 | S3 | **RC_DCPS.SN_V1.3** «قالب شناسه یکتای حافظه مالیاتی و شماره منحصر به فرد مالیاتی», خرداد ۱۴۰۱. Same mirror | official |
+| S4 | **RC_UMGS.ST_V1.18** «واحدهای اندازه‌گیری کالا/خدمت», اردیبهشت ۱۴۰۴, 4 pp., 102 unit codes. Same mirror, `docs/moadian/RC_UMGS_ST_V1_18.pdf` (sha256 starts `f02700c7`, ends `8665`). The full list is `units.md` | official |
 | L | moadian-full 0.0.2 source (PyPI wheel): `invoice_builder.py`, `tax_id.py`, `verhoeff.py` | library |
 | X1 | github.com/mojtabahakimian/Taxation — wire JSON captured from the official .NET SDK 0.0.34 and SDK shim comments | secondary |
 | X2 | github.com/Mr0Hadi/OurERP — Moadian connection guide (digest of INTA documents) | secondary |
@@ -85,7 +86,7 @@ although S1 prints `Indati2m` and `Tax17` in places.
 | sstid | شناسه کالا/خدمت | Goods/service id; must exist on stuffid.tax.gov.ir and its VAT rate must match. P11/P14 allow one line only | digits 13 | M | S1 §7-27 |
 | sstt | شرح کالا/خدمت | Description of the line | str ≤400 | O | S1 §7-28 |
 | am | تعداد/مقدار | Quantity, > 0. P6 and P8: 1 per line. Ignored in P2 | dec(18,8) | M | S1 §7-29 |
-| mu | واحد اندازه‌گیری | Unit-of-measure **code** from the RC_UMGS.ST list (the list itself is not in this skill [UNVERIFIED]; `1627` appears for «عدد» in secondary sources) | digits ≤8 | O (P11 M) | S1 §7-30 |
+| mu | واحد اندازه‌گیری | Unit-of-measure **code** from the RC_UMGS.ST list, all 102 codes in `units.md` (e.g. `1627` عدد, `164` کیلوگرم, `165` متر). Any other code: 0103502; the validator warns | digits ≤8 | O (P11 M) | S1 §7-30; S4 |
 | nw | وزن خالص | Net weight in kg per customs declaration | dec(15,8) | P7 C | S1 §7-31 |
 | fee | مبلغ واحد | **Unit price in rial**, > 0. P7: ssrv/am. P8: base freight | dec(18,8) | M | S1 §7-32 |
 | cfee | میزان ارز | Currency amount; outside P2 `cfee = fee / exr` | dec(14,4) | O (P2 M) | S1 §7-33 |
@@ -141,6 +142,7 @@ type 3** (S1 §7-52…§7-60).
 | `dis = dis × am` | dis is the line total (S1 §7-39) | wrong adis, vam, totals |
 | `insp = tadis`, `cap = tbill` on every invoice | cap/insp exclude VAT and are for setm 3 only (S1 §7-23, §7-24) | cash invoice declares a credit amount |
 | `vop = vam`, `tvop = tvam` | vop = vam × cap / tadis (S1 §7-49) | only right for fully-cash payments |
+| `mu = "164"` when no unit is given | 164 is کیلوگرم (S4); mu is optional (S1 §7-30) | every item without a unit is declared in kilograms |
 | `ins` hard-coded to 1, `indati2m = indatim` | ins from the caller; indati2m only for Arts. 9/12 (S1 §7-3, §7-8) | corrections/cancels impossible; extra field |
 | taxid check digit over base36 of the hex string | Verhoeff over ASCII codes + decimal day + decimal serial (S3 §3-1-4) | `DEF5GH0481F000000000C7` instead of `…C2` |
 | `import moadian_full` | package folder is `moadian-full` | documented import fails; use `scripts/_moadian.py` |

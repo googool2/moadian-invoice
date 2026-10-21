@@ -10,6 +10,19 @@ All notable changes to this project. Versions follow [semver](https://semver.org
 Before 1.0.0, a minor bump may also include changes of the "major" kind; they are listed
 under **Changed** with the word *behaviour*.
 
+## [Unreleased]
+
+### Added
+- `references/units.md`: all 102 unit-of-measure codes for `mu` from the official list
+  RC_UMGS.ST_V1.18 (اردیبهشت ۱۴۰۴), read from a byte copy on GitHub (sha256 `f02700c7…8665`) and
+  checked row by row against the rendered pages. Replaces the `[UNVERIFIED]` note in `fields.md`.
+- `validate_invoice.py` warns (rule `unit-list`, likely code 0103502) when `mu` is not in that
+  list. A warning, not an error, because INTA may add codes after V1.18.
+
+### Changed
+- `fields.md` §4 and `build_invoice.py`'s correction note: moadian-full's default `mu = "164"`
+  is کیلوگرم (kilogram), not an unknown code.
+
 ## [0.2.0] — 2026-10-21
 
 ### Added

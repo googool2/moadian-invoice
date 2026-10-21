@@ -90,7 +90,8 @@ How to read it:
 
 **Sources.** Field meanings, the per-pattern required/optional table and the formulas come
 from the official guideline *RC_IITP.IS_V7.8* (اردیبهشت ۱۴۰۵). The taxid algorithm comes from
-*RC_DCPS.SN_V1.3* and the official SDKs. Error codes come from secondary sources and are
+*RC_DCPS.SN_V1.3* and the official SDKs. The 102 unit codes for `mu` come from *RC_UMGS.ST_V1.18*
+(اردیبهشت ۱۴۰۴). Error codes come from secondary sources and are
 labelled as such. Anything without a source is marked `[UNVERIFIED]`. See
 `skills/moadian-invoice/references/`.
 
@@ -224,6 +225,8 @@ Next:
 - **Sources.** The official PDFs were read from byte copies in a public GitHub repository,
   because intamedia.ir was unreachable while this was built. Their hashes are in `fields.md`.
 - **Error codes.** All error-code meanings come from secondary sources.
+- **Unit codes.** The `mu` list is RC_UMGS.ST_V1.18. A code outside it gets a warning, not an
+  error, because INTA may have added codes since.
 - **Newer fields.** V7.9-era fields (`insr`, `nti1`, `nti2`) are `[UNVERIFIED]`.
 - **Not tested on real data:**
   - The send path has only been tested against a fake server, never against the real sandbox

@@ -13,7 +13,15 @@ Type codes:
   I<=13    integer with at most 13 digits
   D18,0    decimal: <=18 integer digits, <=0 fraction digits (i.e. an integer)
   ?        type not in V7.8 (field from V7.9 / SDK) — not checked [UNVERIFIED]
+
+Unit codes for mu (RC_UMGS.ST_V1.18) are read from references/units.md by units().
 """
+
+import functools
+import re
+from pathlib import Path
+
+UNITS_MD = Path(__file__).resolve().parent.parent / "references" / "units.md"
 
 # (section, type code, Persian name)
 FIELDS = {
@@ -263,3 +271,14 @@ def status(field: str, inty: int, inp: int) -> str | None:
     if row is None or (inty, inp) not in MATRIX_COLUMNS:
         return None
     return row.replace("/", "")[MATRIX_COLUMNS.index((inty, inp))]
+
+
+@functools.lru_cache(maxsize=None)
+def units(path: Path = UNITS_MD) -> dict[str, str]:
+    """mu code -> Persian unit name, from the RC_UMGS.ST_V1.18 table in references/units.md.
+    Returns {} if the file is missing, so callers can say the list was not checked."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return {}
+    return dict(re.findall(r"^\| (\d{1,8}) \| ([^|]+?) \|", text, re.M))

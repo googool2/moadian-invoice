@@ -5,8 +5,8 @@
     python scripts/validate_invoice.py invoice.json --now 1745222400000   # also check indatim window
     python scripts/validate_invoice.py invoice.json --text                # human-readable
 
-Checks, in order: structure → field types/lengths → enums → required fields for the
-type (inty) and pattern (inp) → conditional rules → arithmetic → taxid.
+Checks, in order: structure → field types/lengths → unit codes (mu) → enums → required
+fields for the type (inty) and pattern (inp) → conditional rules → arithmetic → taxid.
 Rules cite RC_IITP.IS_V7.8 ("S1", see references/fields.md) by section; rules that
 come only from secondary sources say so. Exit code 0 = no errors (warnings allowed).
 """
@@ -127,6 +127,30 @@ def check_fields(rep: Report, inv) -> None:
             rep.error(path, f"{field} belongs in {home}, not {sec}", "placement", "S1 Table 2")
             continue
         check_type(rep, path, field, value)
+
+
+# --------------------------------------------------------------- units ----
+UNITS_SOURCE = "RC_UMGS.ST_V1.18 (references/units.md); errors.md 0103502"
+
+
+def check_units(rep: Report, inv) -> None:
+    """mu must be a code from RC_UMGS.ST. A warning, not an error: INTA may add codes after V1.18."""
+    rows = [(i, b["mu"]) for i, b in enumerate(inv.get("body") or [])
+            if isinstance(b, dict) and isinstance(b.get("mu"), str) and b["mu"].isdigit() and len(b["mu"]) <= 8]
+    if not rows:
+        return  # absent, null or badly typed mu: nothing to look up (check_type reports the format)
+    known = spec.units()
+    if not known:
+        rep.notes.append("mu not checked against the unit list: references/units.md is missing")
+        return
+    for i, mu in rows:
+        if mu in known:
+            continue
+        hint = " Use Latin digits 0-9." if not mu.isascii() else ""
+        rep.warn(f"body[{i}].mu", f"mu={mu} is not a unit code in RC_UMGS.ST_V1.18; the system rejects codes "
+                 f"outside its list with 0103502.{hint} Pick a code from references/units.md (e.g. 1627 عدد, "
+                 "164 کیلوگرم). Warning only: codes added after V1.18 are not in the list", "unit-list",
+                 UNITS_SOURCE, actual=mu, code=code_hint("mu", "1", "02"))
 
 
 # --------------------------------------------------------------- enums ----
@@ -313,6 +337,7 @@ def validate(inv, now_ms: int | None = None) -> dict:
     if check_structure(rep, inv):
         h = inv["header"]
         check_fields(rep, inv)
+        check_units(rep, inv)
         check_ids(rep, inv)
         inty, inp, ins = check_enums(rep, h, inv)
         check_required(rep, inv, inty, inp, ins)

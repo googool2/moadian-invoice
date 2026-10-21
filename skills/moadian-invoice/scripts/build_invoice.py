@@ -58,7 +58,8 @@ BODY_WHY = {
     "vop": "vop is the VAT share of the cash payment, only meaningful with setm=3 (S1 §7-49)",
     "prdis": "prdis = am × fee, truncated (S1 §7-38)",
     "sstt": "no description given; an empty string fails the format check, so it is left out (sstt is optional)",
-    "mu": "no unit given; moadian-full silently inserts \"164\", which is not a verified RC_UMGS code (mu is optional)",
+    "mu": "no unit given; moadian-full silently inserts \"164\" (کیلوگرم, kilogram, in RC_UMGS.ST_V1.18), "
+          "wrong unless the item is sold by weight (mu is optional; codes in references/units.md)",
 }
 HEADER_WHY = {
     "cap": "cap is the cash amount excluding VAT; only mandatory for setm=3 (S1 §7-23)",
