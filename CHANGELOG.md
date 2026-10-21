@@ -22,6 +22,8 @@ under **Changed** with the word *behaviour*.
 - Check-digit warnings for 10-digit national codes and 11-digit legal-entity ids
   (algorithm from persian-tools; warnings because the source is not an INTA document).
 - `--version` on every script; one version number in `scripts/_cli.py`.
+- `bench/bench.py`: 13 valid "trap" invoices and 37 seeded defects with the expected field and
+  severity; writes `bench/RESULTS.md` and `results.json`, exits non-zero on any miss.
 
 ### Changed
 - Layout: one plugin with two skills, `skills/moadian-invoice` and `skills/moadian-send`
@@ -32,6 +34,12 @@ under **Changed** with the word *behaviour*.
 - All scripts crashed with `UnicodeEncodeError` when their output was piped on Windows
   (cp1252); stdout is now UTF-8 everywhere.
 - `build_invoice.py` wrote `sstt: ""` (invalid) when no description was given.
+- `validate_invoice.py` crashed (`NameError`) on any invoice without `tprdis`, e.g. every export
+  invoice — a missing import after the arithmetic moved to `_arith.py` in 0.1.0. Found by the
+  new benchmark; pyflakes now runs in CI.
+- A cancellation (`ins=3`) that omits `inty`/`inp` and still carries items got no warning.
+  Found by the new benchmark.
+
 
 ## [0.1.0] — 2026-10-21
 

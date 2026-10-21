@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+import _spec as spec
 from _common import HUNDRED, Report, _plain, code_hint, num, trunc
 
 

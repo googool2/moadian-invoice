@@ -25,7 +25,7 @@ import _ids  # noqa: E402
 import _spec as spec  # noqa: E402
 import taxid as taxid_mod  # noqa: E402
 from _arith import check_arithmetic  # noqa: E402
-from _common import FIELD_NO, Report, _plain, code_hint, num  # noqa: E402
+from _common import FIELD_NO, Report, code_hint, num  # noqa: E402
 
 SECTIONS = ("header", "body", "payments")
 
@@ -165,6 +165,9 @@ def check_required(rep: Report, inv, inty, inp, ins) -> None:
                 if p.get(f) is None:
                     rep.error(f"payments[{i}].{f}", f"{f} is mandatory for inty=3", "required", "S1 §7-52…§7-59")
         return
+    if ins == 3 and body:  # checked before the matrix: a cancellation may omit inty/inp
+        rep.warn("body", "cancellations (ins=3) take items from the reference invoice; secondary sources report "
+                 "14xxx warnings when items/totals are sent", "cancellation", "S1 §7-8; errors.md E8")
     if (inty, inp) not in spec.MATRIX_COLUMNS:
         return
     referring = ins in (2, 3, 4)
@@ -189,9 +192,6 @@ def check_required(rep: Report, inv, inty, inp, ins) -> None:
                          code=f"14{FIELD_NO[field]}" if field in FIELD_NO else None)
     if not body and ins != 3:
         rep.error("body", "an invoice needs at least one item", "required", "S1 Table 2; errors.md §2")
-    if ins == 3 and body:
-        rep.warn("body", "cancellations (ins=3) take items from the reference invoice; secondary sources report "
-                 "14xxx warnings when items/totals are sent", "cancellation", "S1 §7-8; errors.md E8")
 
 
 # --------------------------------------------------------- conditional ----

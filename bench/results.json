@@ -1,0 +1,389 @@
+{
+  "traps": [
+    {
+      "name": "sale-legal-cash",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "sale-natural-person-bid-bpc",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "type2-no-buyer",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "setm3-mixed",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "gold-pattern",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "export-pattern",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "cancellation-header-only",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "decimal-quantity-and-price",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "other-taxes-odam",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "correction-ins2",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "sales-return-ins4",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "credit-sale-zero-payment",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "multi-line-discounts",
+      "pass": true,
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "defects": [
+    {
+      "name": "prdis rounded instead of truncated",
+      "expected": "error at body[0].prdis",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0204101",
+      "pass": true
+    },
+    {
+      "name": "adis ≠ prdis − dis",
+      "expected": "error at body[0].adis",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0204301",
+      "pass": true
+    },
+    {
+      "name": "vam rounded half-up",
+      "expected": "error at body[0].vam",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0204501",
+      "pass": true
+    },
+    {
+      "name": "dis greater than prdis",
+      "expected": "error at body[0].dis",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0204201",
+      "pass": true
+    },
+    {
+      "name": "odam ≠ adis × odr",
+      "expected": "error at body[0].odam",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "tsstam ≠ adis + vam + odam",
+      "expected": "error at body[0].tsstam",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "tvam ≠ Σ vam",
+      "expected": "error at header.tvam",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0202501",
+      "pass": true
+    },
+    {
+      "name": "tbill ≠ Σ tsstam",
+      "expected": "error at header.tbill",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0202701",
+      "pass": true
+    },
+    {
+      "name": "tdis ≠ Σ dis",
+      "expected": "error at header.tdis",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0202301",
+      "pass": true
+    },
+    {
+      "name": "cap = tbill on a cash invoice",
+      "expected": "error at header.cap",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "setm 3 with cap + insp ≠ net",
+      "expected": "error at header.cap",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "setm 3 without insp",
+      "expected": "error at header.insp",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "00030",
+      "pass": true
+    },
+    {
+      "name": "gold tcpbs ≠ consfee + spro + bros",
+      "expected": "error at body[0].tcpbs",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "tax17 above tvam",
+      "expected": "error at header.tax17",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "pv on a credit invoice",
+      "expected": "error at payments[0].pv",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "legal buyer without tinb",
+      "expected": "error at header.tinb",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "00012",
+      "pass": true
+    },
+    {
+      "name": "natural person without tinb or bpc",
+      "expected": "error at header.tinb",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "00012",
+      "pass": true
+    },
+    {
+      "name": "inty 4 (does not exist)",
+      "expected": "error at header.inty",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0100402",
+      "pass": true
+    },
+    {
+      "name": "contracting pattern on type 2",
+      "expected": "error at header.inp",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "correction without irtaxid",
+      "expected": "error at header.irtaxid",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "00006",
+      "pass": true
+    },
+    {
+      "name": "return on an export invoice",
+      "expected": "error at header.ins",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "wrong taxid check digit",
+      "expected": "error at header.taxid",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0300101",
+      "pass": true
+    },
+    {
+      "name": "taxid day ≠ indatim day",
+      "expected": "error at header.taxid",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0300101",
+      "pass": true
+    },
+    {
+      "name": "inno not 10 hex characters",
+      "expected": "error at header.inno",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0100504",
+      "pass": true
+    },
+    {
+      "name": "sstid with 12 digits",
+      "expected": "error at body[0].sstid",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0103304",
+      "pass": true
+    },
+    {
+      "name": "tins sent as a number",
+      "expected": "error at header.tins",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0100903",
+      "pass": true
+    },
+    {
+      "name": "vam with decimals",
+      "expected": "error at body[0].vam",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0104509",
+      "pass": true
+    },
+    {
+      "name": "body field in the header",
+      "expected": "error at header.vam",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "VAT on a chain-sale pattern (inp 14)",
+      "expected": "error at body[0].vra",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "required fee missing",
+      "expected": "error at body[0].fee",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "00037",
+      "pass": true
+    },
+    {
+      "name": "type 3 without payment data",
+      "expected": "error at payments",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "indatim in the future",
+      "expected": "error at header.indatim",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0200201",
+      "pass": true
+    },
+    {
+      "name": "seller legal id check digit",
+      "expected": "warning at header.tins",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "0300901",
+      "pass": true
+    },
+    {
+      "name": "buyer national code check digit",
+      "expected": "warning at header.bid",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "1301101",
+      "pass": true
+    },
+    {
+      "name": "field ignored for the pattern",
+      "expected": "warning at header.billid",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": "14021",
+      "pass": true
+    },
+    {
+      "name": "unknown field",
+      "expected": "warning at header.foo",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    },
+    {
+      "name": "items sent on a cancellation",
+      "expected": "warning at body",
+      "found": true,
+      "unexpected_root_errors": [],
+      "code_hint": null,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "version": "0.2.0",
+    "python": "3.13.16",
+    "os": "Linux",
+    "traps_clean": "13/13",
+    "defects_caught": "37/37",
+    "seconds": 0.015,
+    "pass": true
+  }
+}
