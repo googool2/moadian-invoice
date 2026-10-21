@@ -48,5 +48,5 @@ validator). Read `references/sending.md` before the first send in a conversation
   yourself.
 - Not tax advice; the user (and their accountant) decide what is sent.
 
-Answer in the user's language; in Persian use Persian digits in prose and Latin digits in codes
-and identifiers.
+Answer in the user's language; in Persian use Persian digits for amounts in prose and Latin
+digits for codes, uid, taxid and commands.

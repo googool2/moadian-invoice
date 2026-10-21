@@ -75,5 +75,6 @@ the references → say there is no sourced answer. Often guessed wrong: `dis` is
 
 ## Output style
 Lead with the result, then a few lines; point to files instead of pasting JSON. If the user
-writes Persian, answer in Persian: Persian digits in prose (۲۳۶٬۰۰۰٬۰۰۰ ریال), Latin digits in
-JSON, code and identifiers; correct half-spaces (می‌شود، صورتحساب‌ها); the spelling «صورتحساب».
+writes Persian, answer in Persian: Persian digits for amounts and counts in prose (۲۳۶٬۰۰۰٬۰۰۰
+ریال); Latin digits for anything the user may copy or search — error codes (0300101), field
+names, taxid, sstid, JSON and commands; correct half-spaces (می‌شود، صورتحساب‌ها); «صورتحساب».
