@@ -1,0 +1,282 @@
+{
+  "method": "skill-creator scripts.run_eval, model claude-opus-5-5, 3 runs per query, threshold 0.5",
+  "note": "Parallel runs (--num-workers 10) share one .claude/commands folder, so each claude -p sees ~10 copies of the skill under different names and often picks another worker's copy; that scored 5/10 for both descriptions. Sequential runs (--num-workers 1) are the valid measurement.",
+  "runs": {
+    "v1_parallel_invalid": {
+      "summary": {
+        "total": 10,
+        "passed": 5,
+        "failed": 5
+      },
+      "results": [
+        {
+          "query": "یه صورتحساب مودیان برای این فاکتور بساز: فروشنده شناسه ملی 10101234567، خریدار شرکت با شناسه ملی 14011576540، ۳ عدد لپ‌تاپ با شناسه کالا 2330004219206 هر کدوم ۴۵۰ میلیون ریال، ۵ میلیون ریال تخفیف کل، مالیات ارزش افزوده ۱۰ درصد. خروجی JSON بده که بشه فرستاد.",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "pass": false
+        },
+        {
+          "query": "I'm integrating our ERP with Iran's Moadian tax system (tp.tax.gov.ir). My invoice JSON has tprdis=5000000 but the body lines only sum to 4500000, and I'm not sure what tvam and tbill should be. Can you check the payload in ./out/inv-1042.json and tell me what's wrong?",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "pass": false
+        },
+        {
+          "query": "این JSON رو چرا سامانه رد می‌کنه؟ خطای 0300101 میده. header: {\"inty\":1,\"inp\":1,\"ins\":1,\"tprdis\":5000000,\"tdis\":0,\"tadis\":5000000,\"tvam\":450000,\"tbill\":5450000} و body یه ردیف با fee 5000000 و vra 10 داره",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "pass": false
+        },
+        {
+          "query": "فرق inty 1 و 2 چیه توی صورتحساب الکترونیکی؟ مشتری‌مون شخص حقیقیه و کد ملیش رو نداریم، کدومو بزنیم؟",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "pass": false
+        },
+        {
+          "query": "شماره منحصر به فرد مالیاتی A111H1004C700000000014 رو برای یه فاکتور تولید کردیم ولی سامانه قبولش نمی‌کنه. می‌تونی چک کنی رقم کنترلیش درسته و تاریخ و سریالش چی درمیاد؟",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "pass": false
+        },
+        {
+          "query": "مالیات حقوق ماهانه ۱۲۰ میلیون تومنی برای سال ۱۴۰۵ چقدر میشه؟ معافیت پایه امسال رو هم بگو و پله‌ها رو حساب کن.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "یه فاکتور فروش ساده برای مغازه‌ام توی اکسل طراحی کن، ستون‌های شرح کالا، تعداد، قیمت واحد، تخفیف و ارزش افزوده داشته باشه و جمع کل رو خودش حساب کنه. فقط برای چاپ و دادن به مشتریه.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "نرخ مالیات بر ارزش افزوده امسال توی ایران چند درصده؟ کدوم کالاها معاف هستن و اظهارنامه فصلی ارزش افزوده رو تا کی باید داد؟",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "Generate a clean PDF invoice template for my freelance design clients in Germany: 19% VAT, reverse-charge note for EU B2B clients, invoice number, IBAN and payment terms of 14 days.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "یه تابع پایتون بنویس که کد ملی ۱۰ رقمی ایران رو اعتبارسنجی کنه (رقم کنترل آخر) و برای فرم ثبت‌نام سایتمون استفاده کنیم.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        }
+      ]
+    },
+    "v2_parallel_invalid": {
+      "summary": {
+        "total": 10,
+        "passed": 5,
+        "failed": 5
+      },
+      "results": [
+        {
+          "query": "فرق inty 1 و 2 چیه توی صورتحساب الکترونیکی؟ مشتری‌مون شخص حقیقیه و کد ملیش رو نداریم، کدومو بزنیم؟",
+          "should_trigger": true,
+          "trigger_rate": 0.3333333333333333,
+          "pass": false
+        },
+        {
+          "query": "I'm integrating our ERP with Iran's Moadian tax system (tp.tax.gov.ir). My invoice JSON has tprdis=5000000 but the body lines only sum to 4500000, and I'm not sure what tvam and tbill should be. Can you check the payload in ./out/inv-1042.json and tell me what's wrong?",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "pass": false
+        },
+        {
+          "query": "یه صورتحساب مودیان برای این فاکتور بساز: فروشنده شناسه ملی 10101234567، خریدار شرکت با شناسه ملی 14011576540، ۳ عدد لپ‌تاپ با شناسه کالا 2330004219206 هر کدوم ۴۵۰ میلیون ریال، ۵ میلیون ریال تخفیف کل، مالیات ارزش افزوده ۱۰ درصد. خروجی JSON بده که بشه فرستاد.",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "pass": false
+        },
+        {
+          "query": "این JSON رو چرا سامانه رد می‌کنه؟ خطای 0300101 میده. header: {\"inty\":1,\"inp\":1,\"ins\":1,\"tprdis\":5000000,\"tdis\":0,\"tadis\":5000000,\"tvam\":450000,\"tbill\":5450000} و body یه ردیف با fee 5000000 و vra 10 داره",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "pass": false
+        },
+        {
+          "query": "شماره منحصر به فرد مالیاتی A111H1004C700000000014 رو برای یه فاکتور تولید کردیم ولی سامانه قبولش نمی‌کنه. می‌تونی چک کنی رقم کنترلیش درسته و تاریخ و سریالش چی درمیاد؟",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "pass": false
+        },
+        {
+          "query": "یه فاکتور فروش ساده برای مغازه‌ام توی اکسل طراحی کن، ستون‌های شرح کالا، تعداد، قیمت واحد، تخفیف و ارزش افزوده داشته باشه و جمع کل رو خودش حساب کنه. فقط برای چاپ و دادن به مشتریه.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "مالیات حقوق ماهانه ۱۲۰ میلیون تومنی برای سال ۱۴۰۵ چقدر میشه؟ معافیت پایه امسال رو هم بگو و پله‌ها رو حساب کن.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "نرخ مالیات بر ارزش افزوده امسال توی ایران چند درصده؟ کدوم کالاها معاف هستن و اظهارنامه فصلی ارزش افزوده رو تا کی باید داد؟",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "Generate a clean PDF invoice template for my freelance design clients in Germany: 19% VAT, reverse-charge note for EU B2B clients, invoice number, IBAN and payment terms of 14 days.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "یه تابع پایتون بنویس که کد ملی ۱۰ رقمی ایران رو اعتبارسنجی کنه (رقم کنترل آخر) و برای فرم ثبت‌نام سایتمون استفاده کنیم.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        }
+      ]
+    },
+    "v1_sequential": {
+      "summary": {
+        "total": 10,
+        "passed": 10,
+        "failed": 0
+      },
+      "results": [
+        {
+          "query": "یه صورتحساب مودیان برای این فاکتور بساز: فروشنده شناسه ملی 10101234567، خریدار شرکت با شناسه ملی 14011576540، ۳ عدد لپ‌تاپ با شناسه کالا 2330004219206 هر کدوم ۴۵۰ میلیون ریال، ۵ میلیون ریال تخفیف کل، مالیات ارزش افزوده ۱۰ درصد. خروجی JSON بده که بشه فرستاد.",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "این JSON رو چرا سامانه رد می‌کنه؟ خطای 0300101 میده. header: {\"inty\":1,\"inp\":1,\"ins\":1,\"tprdis\":5000000,\"tdis\":0,\"tadis\":5000000,\"tvam\":450000,\"tbill\":5450000} و body یه ردیف با fee 5000000 و vra 10 داره",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "فرق inty 1 و 2 چیه توی صورتحساب الکترونیکی؟ مشتری‌مون شخص حقیقیه و کد ملیش رو نداریم، کدومو بزنیم؟",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "I'm integrating our ERP with Iran's Moadian tax system (tp.tax.gov.ir). My invoice JSON has tprdis=5000000 but the body lines only sum to 4500000, and I'm not sure what tvam and tbill should be. Can you check the payload in ./out/inv-1042.json and tell me what's wrong?",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "شماره منحصر به فرد مالیاتی A111H1004C700000000014 رو برای یه فاکتور تولید کردیم ولی سامانه قبولش نمی‌کنه. می‌تونی چک کنی رقم کنترلیش درسته و تاریخ و سریالش چی درمیاد؟",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "مالیات حقوق ماهانه ۱۲۰ میلیون تومنی برای سال ۱۴۰۵ چقدر میشه؟ معافیت پایه امسال رو هم بگو و پله‌ها رو حساب کن.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "یه فاکتور فروش ساده برای مغازه‌ام توی اکسل طراحی کن، ستون‌های شرح کالا، تعداد، قیمت واحد، تخفیف و ارزش افزوده داشته باشه و جمع کل رو خودش حساب کنه. فقط برای چاپ و دادن به مشتریه.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "نرخ مالیات بر ارزش افزوده امسال توی ایران چند درصده؟ کدوم کالاها معاف هستن و اظهارنامه فصلی ارزش افزوده رو تا کی باید داد؟",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "Generate a clean PDF invoice template for my freelance design clients in Germany: 19% VAT, reverse-charge note for EU B2B clients, invoice number, IBAN and payment terms of 14 days.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "یه تابع پایتون بنویس که کد ملی ۱۰ رقمی ایران رو اعتبارسنجی کنه (رقم کنترل آخر) و برای فرم ثبت‌نام سایتمون استفاده کنیم.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        }
+      ]
+    },
+    "v2_sequential_final": {
+      "summary": {
+        "total": 10,
+        "passed": 10,
+        "failed": 0
+      },
+      "results": [
+        {
+          "query": "یه صورتحساب مودیان برای این فاکتور بساز: فروشنده شناسه ملی 10101234567، خریدار شرکت با شناسه ملی 14011576540، ۳ عدد لپ‌تاپ با شناسه کالا 2330004219206 هر کدوم ۴۵۰ میلیون ریال، ۵ میلیون ریال تخفیف کل، مالیات ارزش افزوده ۱۰ درصد. خروجی JSON بده که بشه فرستاد.",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "این JSON رو چرا سامانه رد می‌کنه؟ خطای 0300101 میده. header: {\"inty\":1,\"inp\":1,\"ins\":1,\"tprdis\":5000000,\"tdis\":0,\"tadis\":5000000,\"tvam\":450000,\"tbill\":5450000} و body یه ردیف با fee 5000000 و vra 10 داره",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "فرق inty 1 و 2 چیه توی صورتحساب الکترونیکی؟ مشتری‌مون شخص حقیقیه و کد ملیش رو نداریم، کدومو بزنیم؟",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "I'm integrating our ERP with Iran's Moadian tax system (tp.tax.gov.ir). My invoice JSON has tprdis=5000000 but the body lines only sum to 4500000, and I'm not sure what tvam and tbill should be. Can you check the payload in ./out/inv-1042.json and tell me what's wrong?",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "شماره منحصر به فرد مالیاتی A111H1004C700000000014 رو برای یه فاکتور تولید کردیم ولی سامانه قبولش نمی‌کنه. می‌تونی چک کنی رقم کنترلیش درسته و تاریخ و سریالش چی درمیاد؟",
+          "should_trigger": true,
+          "trigger_rate": 1.0,
+          "pass": true
+        },
+        {
+          "query": "مالیات حقوق ماهانه ۱۲۰ میلیون تومنی برای سال ۱۴۰۵ چقدر میشه؟ معافیت پایه امسال رو هم بگو و پله‌ها رو حساب کن.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "یه فاکتور فروش ساده برای مغازه‌ام توی اکسل طراحی کن، ستون‌های شرح کالا، تعداد، قیمت واحد، تخفیف و ارزش افزوده داشته باشه و جمع کل رو خودش حساب کنه. فقط برای چاپ و دادن به مشتریه.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "نرخ مالیات بر ارزش افزوده امسال توی ایران چند درصده؟ کدوم کالاها معاف هستن و اظهارنامه فصلی ارزش افزوده رو تا کی باید داد؟",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "Generate a clean PDF invoice template for my freelance design clients in Germany: 19% VAT, reverse-charge note for EU B2B clients, invoice number, IBAN and payment terms of 14 days.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        },
+        {
+          "query": "یه تابع پایتون بنویس که کد ملی ۱۰ رقمی ایران رو اعتبارسنجی کنه (رقم کنترل آخر) و برای فرم ثبت‌نام سایتمون استفاده کنیم.",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "pass": true
+        }
+      ]
+    }
+  }
+}

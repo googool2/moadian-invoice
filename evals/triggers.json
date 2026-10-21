@@ -1,0 +1,52 @@
+[
+  {
+    "id": "t1-build-from-invoice",
+    "should_trigger": true,
+    "query": "یه صورتحساب مودیان برای این فاکتور بساز: فروشنده شناسه ملی 10101234567، خریدار شرکت با شناسه ملی 14011576540، ۳ عدد لپ‌تاپ با شناسه کالا 2330004219206 هر کدوم ۴۵۰ میلیون ریال، ۵ میلیون ریال تخفیف کل، مالیات ارزش افزوده ۱۰ درصد. خروجی JSON بده که بشه فرستاد."
+  },
+  {
+    "id": "t2-debug-error-code",
+    "should_trigger": true,
+    "query": "این JSON رو چرا سامانه رد می‌کنه؟ خطای 0300101 میده. header: {\"inty\":1,\"inp\":1,\"ins\":1,\"tprdis\":5000000,\"tdis\":0,\"tadis\":5000000,\"tvam\":450000,\"tbill\":5450000} و body یه ردیف با fee 5000000 و vra 10 داره"
+  },
+  {
+    "id": "t3-inty-difference",
+    "should_trigger": true,
+    "query": "فرق inty 1 و 2 چیه توی صورتحساب الکترونیکی؟ مشتری‌مون شخص حقیقیه و کد ملیش رو نداریم، کدومو بزنیم؟"
+  },
+  {
+    "id": "t4-english-erp-totals",
+    "should_trigger": true,
+    "query": "I'm integrating our ERP with Iran's Moadian tax system (tp.tax.gov.ir). My invoice JSON has tprdis=5000000 but the body lines only sum to 4500000, and I'm not sure what tvam and tbill should be. Can you check the payload in ./out/inv-1042.json and tell me what's wrong?"
+  },
+  {
+    "id": "t5-taxid-check",
+    "should_trigger": true,
+    "query": "شماره منحصر به فرد مالیاتی A111H1004C700000000014 رو برای یه فاکتور تولید کردیم ولی سامانه قبولش نمی‌کنه. می‌تونی چک کنی رقم کنترلیش درسته و تاریخ و سریالش چی درمیاد؟"
+  },
+  {
+    "id": "n1-salary-tax",
+    "should_trigger": false,
+    "query": "مالیات حقوق ماهانه ۱۲۰ میلیون تومنی برای سال ۱۴۰۵ چقدر میشه؟ معافیت پایه امسال رو هم بگو و پله‌ها رو حساب کن."
+  },
+  {
+    "id": "n2-plain-invoice-excel",
+    "should_trigger": false,
+    "query": "یه فاکتور فروش ساده برای مغازه‌ام توی اکسل طراحی کن، ستون‌های شرح کالا، تعداد، قیمت واحد، تخفیف و ارزش افزوده داشته باشه و جمع کل رو خودش حساب کنه. فقط برای چاپ و دادن به مشتریه."
+  },
+  {
+    "id": "n3-general-vat",
+    "should_trigger": false,
+    "query": "نرخ مالیات بر ارزش افزوده امسال توی ایران چند درصده؟ کدوم کالاها معاف هستن و اظهارنامه فصلی ارزش افزوده رو تا کی باید داد؟"
+  },
+  {
+    "id": "n4-german-vat-pdf",
+    "should_trigger": false,
+    "query": "Generate a clean PDF invoice template for my freelance design clients in Germany: 19% VAT, reverse-charge note for EU B2B clients, invoice number, IBAN and payment terms of 14 days."
+  },
+  {
+    "id": "n5-national-code-validator",
+    "should_trigger": false,
+    "query": "یه تابع پایتون بنویس که کد ملی ۱۰ رقمی ایران رو اعتبارسنجی کنه (رقم کنترل آخر) و برای فرم ثبت‌نام سایتمون استفاده کنیم."
+  }
+]

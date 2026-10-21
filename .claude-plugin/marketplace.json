@@ -1,0 +1,21 @@
+{
+  "name": "moadian-invoice",
+  "owner": {
+    "name": "googool2"
+  },
+  "metadata": {
+    "description": "Agent Skill for Iranian Moadian e-invoices (سامانه مودیان)",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "moadian-invoice",
+      "source": "./",
+      "description": "Build, validate, explain and debug Moadian e-invoice JSON with deterministic scripts.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "keywords": ["moadian", "iran", "e-invoice", "tax"],
+      "category": "productivity"
+    }
+  ]
+}

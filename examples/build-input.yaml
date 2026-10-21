@@ -1,0 +1,20 @@
+# Input for scripts/build_invoice.py — all identifiers are fictitious.
+memory_id: A11216
+seller_tin: "10101234567"
+date: 1405-02-01          # Jalali; date-only means 12:00 Tehran time
+type: 1                   # inty: type 1 (full buyer data)
+pattern: 1                # inp: sale
+subject: 1                # ins: original
+serial: 26
+settlement: 1             # setm: cash
+buyer:
+  type: 2                 # tob: legal entity
+  tin: "14011576540"
+items:
+  - sstid: "2330004219206"
+    description: پرینتر لیزری
+    quantity: 2
+    unit_price: 120000000
+    discount: 4000000     # total discount for the line, not per unit
+    vat_rate: 10
+    unit: "1627"
