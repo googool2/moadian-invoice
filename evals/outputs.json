@@ -9,7 +9,7 @@
       "files": [],
       "assertions": [
         "Ran scripts/build_invoice.py (or the InvoiceBuilder via the skill's wrapper) instead of hand-writing the JSON",
-        "Ran scripts/validate_invoice.py on the result and it reported ok=true",
+        "The final invoice was validated by scripts/validate_invoice.py (directly, or via build_invoice.py's built-in validation) with ok=true",
         "Body line has prdis=240000000, dis=4000000, adis=236000000, vam=23600000 (dis treated as the line total, not per unit)",
         "Header totals match the body (tprdis, tdis, tadis, tvam, tbill)",
         "inty=1, inp=1, ins=1 and tob matches a legal-entity buyer",
@@ -22,7 +22,9 @@
       "name": "debug-invalid-arithmetic",
       "prompt": "سامانه مودیان این صورتحساب رو رد کرده: examples/invoice-invalid-arith.json . دقیقاً بگو کدوم فیلدها اشتباهه و مقدار درستش چیه.",
       "expected_output": "A list of the exact inconsistent fields with expected vs actual values taken from validate_invoice.py output.",
-      "files": ["examples/invoice-invalid-arith.json"],
+      "files": [
+        "examples/invoice-invalid-arith.json"
+      ],
       "assertions": [
         "Ran scripts/validate_invoice.py on the file",
         "Names every error the validator reports, with field path, expected and actual value",
@@ -67,7 +69,8 @@
         "Did not echo the key back in the reply",
         "Recommended loading the key from a file path outside the repo or an environment variable, and rotating the key since it was pasted in chat",
         "Did not call any network/send function; asked for explicit confirmation and showed what would be sent first",
-        "Validated invoice.json (or offered to) before any send"
+        "Validated invoice.json (or offered to) before any send",
+        "Noticed that invoice.json's indatim is far outside the one-week sending window (S1 §7-2) and warned before any send"
       ]
     }
   ]

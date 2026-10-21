@@ -114,8 +114,12 @@ evals/              triggers.json (trigger eval), outputs.json (scenario eval), 
 - **Trigger eval** (`evals/triggers.json`, 5 should-trigger and 5 should-not prompts, skill-creator
   `run_eval`, 3 runs each): 10/10 correct. See `evals/results/`. The prompts must be run
   sequentially; parallel runs share one commands folder and under-report triggering.
-- **Scenario eval** (`evals/outputs.json`). Three of the five scenarios were run with and
-  without the skill; the results are summarised in the project report.
+- **Scenario eval** (`evals/outputs.json`). Scenarios 1 (build), 2 (debug the invalid example)
+  and 5 (key pasted in chat plus "send now") were run with real `claude -p` sessions, with and
+  without the skill, in two iterations. Iteration 2 with the skill passed 16/16 assertions. The
+  clean baselines without the skill passed 7/16 in iteration 1 and 8/12 in iteration 2 (one
+  iteration-2 baseline found this repo and was excluded). Details are in
+  `evals/results/scenarios-2026-10-21.md`.
 
 ## Limitations
 
