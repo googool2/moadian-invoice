@@ -39,7 +39,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+
+def _invoice_scripts() -> Path:
+    """This skill reuses the validator from its sibling skill `moadian-invoice`
+    (installed next to it: plugin skills/ folder or ~/.claude/skills/)."""
+    env = os.environ.get("MOADIAN_INVOICE_SCRIPTS")
+    candidates = [Path(env)] if env else []
+    candidates.append(Path(__file__).resolve().parents[2] / "moadian-invoice" / "scripts")
+    for c in candidates:
+        if (c / "validate_invoice.py").exists():
+            return c
+    sys.exit(json.dumps({"ok": False, "error": "the moadian-invoice skill was not found next to moadian-send; "
+                         "install both, or set MOADIAN_INVOICE_SCRIPTS to its scripts folder"}))
+
+
+sys.path.insert(0, str(_invoice_scripts()))
+import _cli  # noqa: E402
 import _moadian  # noqa: E402
 import validate_invoice  # noqa: E402
 
@@ -208,7 +224,9 @@ def send(path: str, target: str, confirm: str | None) -> tuple[int, dict]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _cli.setup_stdout()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    _cli.add_version(ap, "send_invoice")
     sub = ap.add_subparsers(dest="cmd", required=True)
     for name in ("prepare", "send"):
         p = sub.add_parser(name)

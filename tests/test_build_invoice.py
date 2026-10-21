@@ -14,7 +14,7 @@ try:
 except _moadian.MoadianFullMissing:  # pragma: no cover
     LIB = None
 needs_lib = pytest.mark.skipif(LIB is None, reason="moadian-full not installed")
-EX = Path(__file__).resolve().parent.parent / "examples"
+EX = Path(__file__).resolve().parent.parent / "skills" / "moadian-invoice" / "examples"
 
 
 @pytest.fixture
@@ -52,7 +52,7 @@ def test_loader_imports_no_network_code():
     code = ("import sys; sys.path.insert(0, 'scripts'); import _moadian; _moadian.load(); "
             "print(sorted(m for m in ('requests', 'authlib', 'cryptography') if m in sys.modules))")
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
-                         cwd=Path(__file__).resolve().parent.parent, check=True).stdout.strip()
+                         cwd=Path(__file__).resolve().parent.parent / "skills" / "moadian-invoice", check=True).stdout.strip()
     assert out == "[]"
 
 

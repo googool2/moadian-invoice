@@ -1,0 +1,62 @@
+# Workflow: security, taxid and serials
+
+Read this for the taxid algorithm, serial handling, or the security rules. Sending, keys and the
+API are in the `moadian-send` skill (`moadian-send/references/sending.md`).
+
+Sources: S3 = RC_DCPS.SN_V1.3 (official); L = moadian-full 0.0.2 source; T1 = official Java SDK
+mirror github.com/SoftwareNasr/ir.gov.tax.tpis.sdk `TaxUtils.java`; T2 = official .NET SDK
+mirrors (SoftwareNasr/tax.collect.data.sdk `TaxIdGenerator.cs`, 0.0.27 `TaxIdProvider.cs` in
+mojtabahakimian/Taxation); T3 = github.com/ali-hallaji/digi-tax-ops (real accepted taxids and
+sandbox experiments); errors.md E-ids for API errors. All T* are secondary copies of SDK code.
+
+## 1. Security rules (not negotiable)
+
+- The private key and certificate are read **only from a file path or an environment variable**
+  (e.g. `MOADIAN_PRIVATE_KEY_PATH`, `MOADIAN_CERT_PATH`). Never paste them into chat, never write
+  them into the repository, examples, config files or logs. If a user pastes a key into the chat,
+  do not repeat it, do not store it, and tell them to rotate it (generate a new key pair and
+  re-register the public key in کارپوشه) because it has now left their machine.
+- Keep keys outside the project folder, with file permission 600; add `*.pem`, `*.key` to `.gitignore`.
+- Nothing is sent to tp.tax.gov.ir without an explicit "yes, send" from the user **after** they
+  have seen the validated invoice (taxid, buyer, totals) and the target environment.
+- This skill is not tax advice: it checks format and arithmetic against INTA documents, not
+  whether a transaction is taxable or which rate/type is legally right.
+
+## 2. taxid and inno (S3, T1, T2)
+
+Structure (S3 Table 1): `MEMORY_ID(6) + hex(days since 1970-01-01, 5) + hex(serial, 10) + check(1)`,
+22 characters, upper case.
+
+Check digit (S3 §3-1-4 and Appendix 1; identical in T1 and T2):
+
+```
+control = toDecimal(MEMORY_ID) + pad(days, 6) + pad(serial, 12)     # decimal, zero-padded
+toDecimal: digit -> itself, letter -> its code point ("A" -> "65")
+check   = Verhoeff(control)
+```
+
+S3 Appendix 1: `DEF5GH`, day 18463 (1399/04/30), serial 12 → control
+`68697057172018463000000000012` → check 2 → `DEF5GH0481F000000000C2`. moadian-full 0.0.2 returns
+`…C7` for the same input (it maps letters base-36 over the hex string, and its Verhoeff generator
+uses the validation permutation). Two real accepted taxids from T3 (`A41XRD050B1006A5E4C549`,
+`A2HP31050B0006A607FE94`) also verify only with the official algorithm. Use `scripts/taxid.py`.
+
+- days are counted in UTC (T1/T2 divide epoch seconds by 86400; S3 itself names no time zone
+  [UNVERIFIED]). An invoice at 01:00 Tehran time belongs to the previous UTC day.
+- Uppercase the memory id before converting (T1 converts before uppercasing; lower case gives a
+  different digit).
+- Memory id alphabet (S3 p.6): 1-9 and A D E F G H K M N O P R T W X Y Z; 0, I, J, L, Q, V
+  forbidden; B, C, S, U reserved.
+- **inno = taxid[11:21]** (the 10-hex serial). Official SDK samples do this; a sandbox test (T3)
+  got warning 1300501 with a decimal inno and none with the hex serial. S1 §7-5 says inno is a
+  10-char hexadecimal serial; that it must equal the taxid serial is from T2/T3 [secondary].
+
+## 3. Serials
+
+- Never reuse a taxid: a resent taxid is rejected with 0300101 and does not overwrite the stored
+  invoice (errors.md). After a FAILED status, fix the invoice and send it with a **new serial**.
+- moadian-full's `SerialManager` builds serials from `unix_time × 100 + random(10..99)` and keeps
+  the last 1000 in `serial_history_<memory id>.json` in its storage folder (default: current
+  directory). `build_invoice.py` points it at `~/.moadian-invoice/` so the project stays clean.
+  Two machines sending for the same memory id can still collide; give each a separate serial range.
+- S1 §7-5 asks for ascending serials; time-based serials satisfy that within one process.

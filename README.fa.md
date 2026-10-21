@@ -45,7 +45,8 @@ pip install moadian-full
 **Claude Code (اسکیل شخصی)**
 
 ```bash
-git clone https://github.com/googool2/moadian-invoice ~/.claude/skills/moadian-invoice
+git clone https://github.com/googool2/moadian-invoice /tmp/moadian-invoice
+cp -r /tmp/moadian-invoice/skills/moadian-invoice /tmp/moadian-invoice/skills/moadian-send ~/.claude/skills/
 ```
 
 **Claude Code (از طریق plugin marketplace)**
@@ -58,13 +59,14 @@ git clone https://github.com/googool2/moadian-invoice ~/.claude/skills/moadian-i
 **claude.ai:** یک فایل zip فقط با فایل‌های خود اسکیل بسازید و آن را در Settings › Capabilities › Skills بارگذاری کنید:
 
 ```bash
-git archive --format=zip --prefix=moadian-invoice/ -o moadian-invoice.zip HEAD \
-  SKILL.md LICENSE references scripts examples
+for s in moadian-invoice moadian-send; do
+  git archive --format=zip --prefix=$s/ -o $s.zip HEAD:skills/$s
+done
 ```
 
 در محیط claude.ai اسکریپت‌های اعتبارسنجی، شمارهٔ مالیاتی و توضیح خطا بدون تغییر کار می‌کنند. سازنده فقط وقتی کار می‌کند که بشود آنجا `pip install moadian-full` را اجرا کرد.
 
-**Codex:** پوشه را در پوشهٔ اسکیل‌های Codex کپی کنید. این پوشه معمولاً `~/.codex/skills/moadian-invoice` است. این مسیر از راهنماهای غیررسمی آمده؛ آن را با [مستندات Codex](https://developers.openai.com/codex/skills) تطبیق دهید.
+**Codex:** پوشه را در پوشهٔ اسکیل‌های Codex کپی کنید. هر دو پوشهٔ `skills/moadian-invoice` و `skills/moadian-send` را در `~/.codex/skills/` کپی کنید. این مسیر از راهنماهای غیررسمی آمده؛ آن را با [مستندات Codex](https://developers.openai.com/codex/skills) تطبیق دهید.
 
 ## قبل و بعد
 
@@ -114,7 +116,7 @@ validation: ok, 0 errors, 0 warnings
   - برای سامانهٔ اصلی، `MOADIAN_ALLOW_LIVE=1` که خود کاربر تنظیم کرده باشد؛
   - برای sandbox، آدرسی که کاربر بدهد؛ سند رسمی آدرس sandbox ندارد و اسکیل هم آدرسی ارائه نمی‌کند.
 
-  مسیر ارسال فقط با یک سرور ساختگی آزمایش شده و هنوز روی sandbox یا سامانهٔ واقعی اجرا نشده است. راهنما در `references/workflow.md` است.
+  مسیر ارسال فقط با یک سرور ساختگی آزمایش شده و هنوز روی sandbox یا سامانهٔ واقعی اجرا نشده است. راهنما در `skills/moadian-send/references/sending.md` است.
 - **مجوز:** مجوز `moadian-full` از نوع GPL-3.0 است. این اسکیل MIT است و آن کتابخانه را در خودش ندارد؛ فقط هنگام اجرا آن را import می‌کند.
 - **مشاورهٔ مالیاتی نیست:** اسکیل فقط قالب و محاسبات را با اسناد سازمان امور مالیاتی تطبیق می‌دهد. مشمول بودن معامله یا نرخ درست را تعیین نمی‌کند.
 

@@ -21,6 +21,8 @@ import re
 import sys
 from pathlib import Path
 
+import _cli
+
 ERRORS_MD = Path(__file__).resolve().parent.parent / "references" / "errors.md"
 COLUMNS = ("code", "message_fa", "meaning_en", "fields", "fix", "source")
 _PERSIAN_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
@@ -141,7 +143,9 @@ def explain(queries: list[str], rows: list[dict], fields: dict[str, str] | None 
 
 
 def main(argv: list[str] | None = None) -> int:
+    _cli.setup_stdout()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    _cli.add_version(ap, "explain_error")
     ap.add_argument("query", nargs="*", help="error code(s) or text to search")
     ap.add_argument("--from-response", metavar="FILE", help="inquiry response JSON to scan for codes")
     ap.add_argument("--list", action="store_true", help="list all known codes")

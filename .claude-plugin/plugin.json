@@ -1,13 +1,19 @@
 {
   "name": "moadian-invoice",
-  "version": "0.1.0",
-  "description": "Build, validate, explain and debug Iranian Moadian (سامانه مودیان) e-invoice JSON with deterministic scripts instead of guesswork.",
+  "version": "0.2.0",
+  "description": "Build, validate, explain and (with explicit confirmation) send Iranian Moadian (سامانه مودیان) e-invoice JSON using deterministic scripts instead of guesswork.",
   "author": {
     "name": "googool2"
   },
   "homepage": "https://github.com/googool2/moadian-invoice",
   "repository": "https://github.com/googool2/moadian-invoice",
   "license": "MIT",
-  "keywords": ["moadian", "iran", "e-invoice", "tax", "مودیان", "صورتحساب-الکترونیکی"],
-  "skills": ["./"]
+  "keywords": [
+    "moadian",
+    "iran",
+    "e-invoice",
+    "tax",
+    "مودیان",
+    "صورتحساب-الکترونیکی"
+  ]
 }

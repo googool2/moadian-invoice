@@ -4,7 +4,7 @@ from pathlib import Path
 
 import _spec as spec
 
-REF = Path(__file__).resolve().parent.parent / "references"
+REF = Path(__file__).resolve().parent.parent / "skills" / "moadian-invoice" / "references"
 
 
 def test_invoice_types_matrix_matches_spec():

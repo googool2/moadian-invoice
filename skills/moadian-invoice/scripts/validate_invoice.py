@@ -20,6 +20,7 @@ from decimal import Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _cli  # noqa: E402
 import _ids  # noqa: E402
 import _spec as spec  # noqa: E402
 import taxid as taxid_mod  # noqa: E402
@@ -343,7 +344,9 @@ def to_text(res: dict) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _cli.setup_stdout()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    _cli.add_version(ap, "validate_invoice")
     ap.add_argument("file", help="invoice JSON file, or - for stdin")
     ap.add_argument("--now", type=int, help="current time in epoch ms, to check the indatim window")
     ap.add_argument("--text", action="store_true", help="human-readable output instead of JSON")

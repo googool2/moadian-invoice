@@ -40,6 +40,7 @@ from decimal import Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _cli  # noqa: E402
 import _mini_yaml  # noqa: E402
 import _moadian  # noqa: E402
 import taxid as taxid_mod  # noqa: E402
@@ -173,7 +174,7 @@ def build(spec: dict, serial: int | None = None, state_dir: str | None = None) -
         if old != new:
             fixes.append({"path": path, "moadian_full": old, "corrected": new, "why": why})
 
-    # taxid: moadian-full 0.0.2 fails every official example (references/workflow.md)
+    # taxid: moadian-full 0.0.2 fails every official example (references/workflow.md §2)
     used_serial = int(h["inno"], 16)
     good = taxid_mod.generate(memory_id, h["indatim"], used_serial)
     fix("header.taxid", h["taxid"], good, "official check digit (RC_DCPS.SN_V1.3); library digit is wrong")
@@ -242,7 +243,9 @@ def load_input(path: str) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _cli.setup_stdout()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    _cli.add_version(ap, "build_invoice")
     ap.add_argument("input", help="YAML or JSON description (or - for stdin)")
     ap.add_argument("-o", "--output", help="write the invoice JSON here (default: print only)")
     ap.add_argument("--serial", help="invoice serial (decimal, or 0x-prefixed hex); overrides the input file")

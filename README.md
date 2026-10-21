@@ -48,7 +48,8 @@ pip install moadian-full
 **Claude Code (personal skill)**
 
 ```bash
-git clone https://github.com/googool2/moadian-invoice ~/.claude/skills/moadian-invoice
+git clone https://github.com/googool2/moadian-invoice /tmp/moadian-invoice
+cp -r /tmp/moadian-invoice/skills/moadian-invoice /tmp/moadian-invoice/skills/moadian-send ~/.claude/skills/
 ```
 
 **Claude Code (plugin marketplace)**
@@ -62,15 +63,16 @@ git clone https://github.com/googool2/moadian-invoice ~/.claude/skills/moadian-i
 Settings › Capabilities › Skills:
 
 ```bash
-git archive --format=zip --prefix=moadian-invoice/ -o moadian-invoice.zip HEAD \
-  SKILL.md LICENSE references scripts examples
+for s in moadian-invoice moadian-send; do
+  git archive --format=zip --prefix=$s/ -o $s.zip HEAD:skills/$s
+done
 ```
 
 In claude.ai's sandbox the validator, taxid and error scripts work as they are. The builder
 works only if `pip install moadian-full` is possible there.
 
 **Codex.** Clone or copy the folder into Codex's skills directory, commonly
-`~/.codex/skills/moadian-invoice`. That path comes from third-party guides; check the
+`~/.codex/skills/` (copy both `skills/moadian-invoice` and `skills/moadian-send`). That path comes from third-party guides; check the
 [Codex skills docs](https://developers.openai.com/codex/skills).
 
 ## Before and after
@@ -101,10 +103,13 @@ validation: ok, 0 errors, 0 warnings
 ## Repository layout
 
 ```
-SKILL.md            instructions Claude follows (English, ~150 lines)
-references/         fields.md, invoice-types.md, arithmetic-rules.md, errors.md, workflow.md
-scripts/            the five CLIs + helpers (_spec.py = machine-readable field spec)
-examples/           valid minimal/full invoices, an invoice with arithmetic errors, builder inputs
+skills/moadian-invoice/   build, validate, explain (offline)
+  SKILL.md                instructions Claude follows (~1.1k tokens)
+  references/             fields.md, invoice-types.md, arithmetic-rules.md, errors.md, workflow.md
+  scripts/                validate_invoice, build_invoice, taxid, explain_error + helpers
+  examples/               valid minimal/full invoices, an invoice with arithmetic errors, builder inputs
+skills/moadian-send/      send and inquire, with explicit confirmation
+  SKILL.md, references/sending.md, scripts/send_invoice.py
 tests/              pytest suite (pip install pytest moadian-full; pytest)
 evals/              triggers.json (trigger eval), outputs.json (scenario eval), results/
 .claude-plugin/     plugin.json + marketplace.json
@@ -147,7 +152,7 @@ evals/              triggers.json (trigger eval), outputs.json (scenario eval), 
     skill does not ship one.
 
   The send path is tested only against a fake server. It has not been run against the real
-  sandbox or live system. See `references/workflow.md`.
+  sandbox or live system. See `skills/moadian-send/references/sending.md`.
 - **Licence.** `moadian-full` is GPL-3.0. This skill is MIT and does not bundle it; it imports
   it at run time.
 - **Not tax advice.** The skill checks format and arithmetic against INTA documents. It does not

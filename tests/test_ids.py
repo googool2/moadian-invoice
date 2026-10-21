@@ -6,7 +6,7 @@ import pytest
 import _ids
 import validate_invoice as V
 
-EX = Path(__file__).resolve().parent.parent / "examples"
+EX = Path(__file__).resolve().parent.parent / "skills" / "moadian-invoice" / "examples"
 
 # Test vectors from persian-tools (PyPI 0.0.11 tests/test_legal_id.py, test_national_id.py;
 # npm 4.0.4 README). The first two legal ids are marked there as "valid and registered".

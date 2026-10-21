@@ -127,7 +127,7 @@ def test_prepare_is_offline_and_deterministic(fresh_invoice, no_network):
 def test_prepare_refuses_invalid_and_stale(env, no_network):
     from pathlib import Path
 
-    ex = Path(__file__).resolve().parent.parent / "examples"
+    ex = Path(__file__).resolve().parent.parent / "skills" / "moadian-invoice" / "examples"
     assert not S.prepare(str(ex / "invoice-invalid-arith.json"), "sandbox")["ok"]
     stale = S.prepare(str(ex / "invoice-type1-minimal.json"), "sandbox")  # dated 1405-02-01
     assert not stale["ok"] and "confirmation_code" not in stale
