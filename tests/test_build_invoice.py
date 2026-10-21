@@ -79,13 +79,20 @@ def test_build_reports_library_defects(spec, tmp_path):
 
 @needs_lib
 def test_raw_library_output_fails_validation(tmp_path):
-    builder = LIB.InvoiceBuilder("A11216", "10101234567", storage_path=str(tmp_path))
+    from datetime import datetime, timezone
+
+    # Pin serial/date to the RC_DCPS.SN_V1.3 example: moadian-full 0.0.2 gives ...C7, the official digit is ...C2.
+    # (With a random serial the wrong digit matches the right one ~10% of the time.)
+    builder = LIB.InvoiceBuilder("DEF5GH", "10101234567", storage_path=str(tmp_path))
+    builder.serial_manager = B._FixedSerial(12)
+    builder.set_invoice_time(datetime(2020, 7, 20, 8, 0, tzinfo=timezone.utc))
     builder.set_buyer("14011576540", 2)
     builder.add_item(LIB.InvoiceItem("2330004219206", "x", 120000000, am=2, dis=4000000, vra=10))
     raw = builder.build_dict()
     res = V.validate(raw)
     assert not res["ok"]
-    assert any(e["path"] == "header.taxid" for e in res["errors"])
+    assert raw["header"]["taxid"] == "DEF5GH0481F000000000C7"
+    assert any(e["path"] == "header.taxid" and "expected 2" in e["message"] for e in res["errors"])
     assert any(e["path"] == "header.cap" for e in res["errors"])
 
 

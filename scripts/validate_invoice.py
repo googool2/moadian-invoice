@@ -237,7 +237,7 @@ def check_required(rep: Report, inv, inty, inp, ins) -> None:
         rep.error("body", "an invoice needs at least one item", "required", "S1 Table 2; errors.md §2")
     if ins == 3 and body:
         rep.warn("body", "cancellations (ins=3) take items from the reference invoice; secondary sources report "
-                 "14xxx warnings when items/totals are sent", "cancellation", "S1 §7-8; errors.md S8")
+                 "14xxx warnings when items/totals are sent", "cancellation", "S1 §7-8; errors.md E8")
 
 
 # --------------------------------------------------------- conditional ----
@@ -252,7 +252,7 @@ def check_conditional(rep: Report, inv, inty, inp, ins) -> None:
         for f in ("inty", "inp"):
             if h.get(f) is not None and ins == 3:
                 rep.warn(f"header.{f}", f"{f} is ignored on cancellations; secondary sources report warning "
-                         f"14{FIELD_NO[f]}", "referring", "S1 §5-3; errors.md S9")
+                         f"14{FIELD_NO[f]}", "referring", "S1 §5-3; errors.md E9")
     if isinstance(h.get("irtaxid"), str) and len(h["irtaxid"]) == 22:
         res = taxid_mod.validate(h["irtaxid"])
         for e in res["errors"]:
@@ -276,7 +276,7 @@ def check_conditional(rep: Report, inv, inty, inp, ins) -> None:
                           code=code_hint(f, "0"))
     if setm in (1, 2) and (h.get("cap") is not None or h.get("insp") is not None):
         rep.warn("header.cap", "cap/insp are only required for setm=3; secondary sources report 14029/14030 warnings "
-                 "when they are sent otherwise", "conditional", "S1 §7-23; errors.md S2")
+                 "when they are sent otherwise", "conditional", "S1 §7-23; errors.md E2")
         if setm == 1 and (num(h.get("insp")) or 0) > 0:
             rep.warn("header.insp", "insp is the CREDIT (نسیه) amount, but setm=1 says the invoice is cash. "
                      "moadian-full 0.0.2 sets insp=tadis on cash invoices — that is wrong", "settlement", "S1 §7-24")
@@ -423,11 +423,11 @@ def check_dates(rep: Report, h: dict, now_ms: int) -> None:
     if not isinstance(ind, int):
         return
     if ind > now_ms + 30_000:
-        rep.error("header.indatim", "indatim is in the future (system tolerance ~30 s)", "R21", "S1 §7-2; errors.md S1",
+        rep.error("header.indatim", "indatim is in the future (system tolerance ~30 s)", "R21", "S1 §7-2; errors.md E1",
                   code="0200201")
     elif now_ms - ind > 7 * 86_400_000:
         rep.warn("header.indatim", "indatim is more than one week old; S1 requires sending within a week "
-                 "(secondary sources saw type 1 accepted up to ~13 days)", "R21", "S1 §7-2; errors.md S4", code="0200201")
+                 "(secondary sources saw type 1 accepted up to ~13 days)", "R21", "S1 §7-2; errors.md E4", code="0200201")
 
 
 def validate(inv, now_ms: int | None = None) -> dict:

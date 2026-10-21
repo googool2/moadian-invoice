@@ -41,7 +41,7 @@ def test_lowercase_memory_id_is_uppercased_first():
 
 
 def test_bad_check_digit_detected():
-    res = T.validate("DEF5GH0481F000000000C6")  # what moadian-full 0.0.2 produces
+    res = T.validate("DEF5GH0481F000000000C7")  # what moadian-full 0.0.2 produces
     assert not res["ok"]
     assert "expected 2" in res["errors"][0]
 
@@ -94,7 +94,7 @@ def test_cli_generate(capsys):
 
 
 def test_cli_validate_fails_with_exit_1(capsys):
-    assert T.main(["validate", "DEF5GH0481F000000000C6"]) == 1
+    assert T.main(["validate", "DEF5GH0481F000000000C7"]) == 1
 
 
 def test_cli_rejects_naive_date(capsys):

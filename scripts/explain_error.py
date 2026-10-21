@@ -84,7 +84,7 @@ def decode_structure(code: str, fields: dict[str, str]) -> dict | None:
         "field_number": fff,
         "field": SECTIONS.get(fff) or fields.get(fff, "unknown field number"),
         "detail": dd or None,
-        "basis": "numbering scheme in errors.md section 2 (secondary sources S1, S2)",
+        "basis": "numbering scheme in errors.md section 2 (secondary sources E1, E2)",
     }
     if t == "1" and dd:
         out["detail_meaning"] = STRUCT_DETAIL.get(dd, "unknown detail")
