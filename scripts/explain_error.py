@@ -8,7 +8,9 @@ Usage:
     python scripts/explain_error.py --list
 
 Reads only the local errors.md table (no network). Output is JSON. A code that
-is not in the table is reported as unknown; this script never invents meanings.
+is not in the table is reported as unknown, plus a structural decode of the
+7-digit scheme (error/warning, check type, field) from errors.md section 2/5.
+This script never invents a meaning beyond that.
 """
 
 from __future__ import annotations
@@ -41,9 +43,52 @@ def load_table(path: Path = ERRORS_MD) -> list[dict]:
             continue
         row = dict(zip(COLUMNS, cells[: len(COLUMNS)]))
         row["code"] = code
-        row["unverified"] = "[UNVERIFIED]" in line
+        row["unverified"] = "[UNVERIFIED" in line
         rows.append(row)
     return rows
+
+
+CHECK_TYPES = {
+    "0": "field is empty",
+    "1": "JSON structure (format/regex/enum/type/range)",
+    "2": "calculation or logic rule failed",
+    "3": "does not match system data",
+    "4": "field sent out of pattern (not expected for this invoice pattern)",
+    "5": "duplicate",
+}
+STRUCT_DETAIL = {
+    "01": "disallowed property", "02": "not an allowed value (enum)", "03": "wrong type",
+    "04": "regex/length", "05": "exclusive min/max", "06": "min/max", "09": "too many decimal places",
+}
+SECTIONS = {"000": "whole JSON", "500": "header", "600": "body", "700": "payments", "800": "extension"}
+
+
+def load_field_numbers(path: Path = ERRORS_MD) -> dict[str, str]:
+    text = path.read_text(encoding="utf-8")
+    m = re.search(r"^## 5\..*?$(.*?)(^## |\Z)", text, re.S | re.M)
+    return dict(re.findall(r"\b(\d{3}) ([a-z0-9]+)\b", m.group(1))) if m else {}
+
+
+def decode_structure(code: str, fields: dict[str, str]) -> dict | None:
+    """Decode K T FFF [DD] (errors.md section 2). Returns None if not that shape."""
+    c = normalize_code(code)
+    if not re.fullmatch(r"[01][0-5]\d{3}(\d{2})?", c):
+        return None
+    if len(c) == 5 and c[:2] in ("04", "05"):
+        # 04111..04153 / 05139.. are packet/transport codes, not K T FFF (errors.md section 3)
+        return None
+    k, t, fff, dd = c[0], c[1], c[2:5], c[5:7]
+    out = {
+        "severity": "error (invoice rejected)" if k == "0" else "warning (invoice still accepted)",
+        "check_type": CHECK_TYPES[t],
+        "field_number": fff,
+        "field": SECTIONS.get(fff) or fields.get(fff, "unknown field number"),
+        "detail": dd or None,
+        "basis": "numbering scheme in errors.md section 2 (secondary sources S1, S2)",
+    }
+    if t == "1" and dd:
+        out["detail_meaning"] = STRUCT_DETAIL.get(dd, "unknown detail")
+    return out
 
 
 def lookup(query: str, rows: list[dict]) -> list[dict]:
@@ -77,7 +122,8 @@ def codes_from_response(data) -> list[str]:
     return list(dict.fromkeys(found))
 
 
-def explain(queries: list[str], rows: list[dict]) -> dict:
+def explain(queries: list[str], rows: list[dict], fields: dict[str, str] | None = None) -> dict:
+    fields = fields if fields is not None else {}
     results = []
     for q in queries:
         matches = lookup(q, rows)
@@ -85,9 +131,10 @@ def explain(queries: list[str], rows: list[dict]) -> dict:
             "query": q,
             "found": bool(matches),
             "matches": matches,
+            "structure": decode_structure(q, fields),
             "note": None if matches else (
-                "Not in references/errors.md. Do not guess a meaning: quote the raw "
-                "message from the response and check the current INTA error list."
+                "Not in references/errors.md. Do not guess a meaning beyond 'structure': quote "
+                "the raw message from the response and check the current INTA error list (EC_V02)."
             ),
         })
     return {"source": str(ERRORS_MD.name), "results": results}
@@ -102,6 +149,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     rows = load_table(Path(args.errors_md))
+    fields = load_field_numbers(Path(args.errors_md))
     if args.list:
         out = {"count": len(rows), "codes": [{"code": r["code"], "meaning_en": r["meaning_en"]} for r in rows]}
         print(json.dumps(out, ensure_ascii=False, indent=2))
@@ -114,7 +162,7 @@ def main(argv: list[str] | None = None) -> int:
     if not queries:
         ap.error("give an error code, search text, --from-response FILE or --list")
 
-    out = explain(queries, rows)
+    out = explain(queries, rows, fields)
     print(json.dumps(out, ensure_ascii=False, indent=2))
     return 0 if all(r["found"] for r in out["results"]) else 1
 
