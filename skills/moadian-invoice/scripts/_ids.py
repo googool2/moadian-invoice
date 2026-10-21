@@ -22,18 +22,22 @@ economic codes, civil-partnership ids (also 11 digits).
 
 from __future__ import annotations
 
+import re
+
+_ASCII_DIGITS = re.compile(r"[0-9]+")  # \d and str.isdigit() also match Persian/Arabic digits
+
 _LEGAL_WEIGHTS = (29, 27, 23, 19, 17)
 
 
 def national_code_ok(code: str) -> bool:
-    if len(code) != 10 or not code.isdigit() or len(set(code)) == 1 or int(code[3:9]) == 0:
+    if len(code) != 10 or not _ASCII_DIGITS.fullmatch(code) or len(set(code)) == 1 or int(code[3:9]) == 0:
         return False
     r = sum(int(code[i]) * (10 - i) for i in range(9)) % 11
     return int(code[9]) == (r if r < 2 else 11 - r)
 
 
 def legal_id_ok(code: str) -> bool:
-    if len(code) != 11 or not code.isdigit() or int(code[3:9]) == 0:
+    if len(code) != 11 or not _ASCII_DIGITS.fullmatch(code) or int(code[3:9]) == 0:
         return False
     k = int(code[9]) + 2
     r = sum((int(code[i]) + k) * _LEGAL_WEIGHTS[i % 5] for i in range(10)) % 11
@@ -45,7 +49,7 @@ def check(value, kind: str) -> str | None:
 
     kind: "national" (10 digits), "legal" (11 digits), or "auto" (10 → national, 11 → legal).
     """
-    if not isinstance(value, str) or not value.isdigit():
+    if not isinstance(value, str) or not _ASCII_DIGITS.fullmatch(value):
         return None  # type/format errors are reported by the field checks
     if kind == "auto":
         kind = {10: "national", 11: "legal"}.get(len(value), "")

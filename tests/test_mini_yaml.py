@@ -48,3 +48,8 @@ def test_flow_style_rejected():
 def test_bad_indent_rejected():
     with pytest.raises(ValueError):
         y.loads("a: 1\n   b: 2")
+
+
+def test_persian_digits_stay_strings():
+    # YAML integers are 0-9 only; Persian digits must reach the validator as text
+    assert y.loads("sstid: ۲۳۳۰۰۰۴۲۱۹۲۰۶\n") == {"sstid": "۲۳۳۰۰۰۴۲۱۹۲۰۶"}

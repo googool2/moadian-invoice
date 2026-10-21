@@ -15,6 +15,8 @@ def load(name):
 
 
 @pytest.fixture
+
+
 def good():
     return load("invoice-type1-minimal.json")
 
@@ -24,6 +26,8 @@ def paths(res, kind="errors"):
 
 
 @pytest.mark.parametrize("name", ["invoice-type1-minimal.json", "invoice-type1-full.json"])
+
+
 def test_valid_examples_pass(name):
     res = V.validate(load(name))
     assert res["ok"], res["errors"]
@@ -170,6 +174,32 @@ def test_wrong_types(good):
     res = V.validate(good)
     p = paths(res)
     assert {"header.tins", "body[0].sstid", "body[0].vam", "header.inty"} <= set(p)
+
+
+FA = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")   # Persian digits
+AR = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")   # Arabic-Indic digits
+
+
+@pytest.mark.parametrize("table", [FA, AR], ids=["persian", "arabic"])
+
+
+def test_persian_digits_rejected(good, table):
+    # str.isdigit() is True for these; the system's regex accepts only 0-9 (01FFF04)
+    good["header"]["tins"] = good["header"]["tins"].translate(table)
+    good["body"][0]["sstid"] = "2330004219206".translate(table)
+    res = V.validate(good)
+    errs = {e["path"]: e for e in res["errors"]}
+    assert not res["ok"]
+    assert errs["header.tins"]["code_hint"] == "0100904"
+    assert errs["body[0].sstid"]["code_hint"] == "0103304"
+    for e in (errs["header.tins"], errs["body[0].sstid"]):
+        assert e["rule"] == "regex" and "use Latin digits 0-9" in e["message"]
+
+
+def test_mixed_non_digit_message_has_no_latin_hint(good):
+    good["header"]["tins"] = "1010123456x"
+    e = next(e for e in V.validate(good)["errors"] if e["path"] == "header.tins")
+    assert e["code_hint"] == "0100904" and "Latin" not in e["message"]
 
 
 def test_field_in_wrong_section(good):

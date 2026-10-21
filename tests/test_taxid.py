@@ -17,6 +17,8 @@ REAL_ACCEPTED = ["A41XRD050B1006A5E4C549", "A2HP31050B0006A607FE94"]
 
 
 @pytest.mark.parametrize("serial,expected", OFFICIAL)
+
+
 def test_official_examples(serial, expected):
     assert T.generate("DEF5GH", 18463 * DAY, serial) == expected
 
@@ -26,6 +28,8 @@ def test_official_control_string():
 
 
 @pytest.mark.parametrize("taxid", REAL_ACCEPTED + [e for _, e in OFFICIAL])
+
+
 def test_validate_accepts_known_good(taxid):
     res = T.validate(taxid)
     assert res["ok"], res
@@ -80,6 +84,15 @@ def test_decode():
     d = T.decode("DEF5GH0481F000000000C2")
     assert d["days_since_epoch"] == 18463 and d["date_utc"] == "2020-07-20"
     assert d["serial"] == 12 and d["inno_expected"] == "000000000C"
+
+
+def test_persian_digits_rejected():
+    fa = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
+    t = "DEF5GH0481F000000000C2"
+    assert "hexadecimal" in T.decode(t[:6] + t[6:21].translate(fa) + t[21])["error"]
+    assert not T.validate(t[:-1] + t[-1].translate(fa))["ok"]
+    with pytest.raises(ValueError, match="Latin"):
+        T.generate("A1121" + "6".translate(fa), 18463 * DAY, 1)
 
 
 def test_serial_out_of_range():

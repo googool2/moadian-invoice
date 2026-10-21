@@ -21,21 +21,29 @@ NATIONAL_INVALID = ["0000000000", "4271427685", "0200203041", "0684159415", "068
 
 
 @pytest.mark.parametrize("code", LEGAL_VALID)
+
+
 def test_legal_valid(code):
     assert _ids.legal_id_ok(code)
 
 
 @pytest.mark.parametrize("code", LEGAL_INVALID)
+
+
 def test_legal_invalid(code):
     assert not _ids.legal_id_ok(code)
 
 
 @pytest.mark.parametrize("code", NATIONAL_VALID)
+
+
 def test_national_valid(code):
     assert _ids.national_code_ok(code)
 
 
 @pytest.mark.parametrize("code", NATIONAL_INVALID)
+
+
 def test_national_invalid(code):
     assert not _ids.national_code_ok(code)
 
@@ -47,6 +55,13 @@ def test_check_auto_and_uncheckable():
     assert _ids.check("123456789012", "auto") is None      # foreign-national code: no sourced algorithm
     assert _ids.check("12345678901234", "legal") is None   # 14-digit economic code: not checked
     assert _ids.check(10380285692, "legal") is None        # non-strings are the type checker's job
+
+
+def test_persian_digits_not_accepted():
+    fa = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")
+    assert not _ids.national_code_ok("0499370899".translate(fa))
+    assert not _ids.legal_id_ok("10380284790".translate(fa))
+    assert _ids.check("0499370899".translate(fa), "auto") is None  # format error: field checks report it
 
 
 def load(name):

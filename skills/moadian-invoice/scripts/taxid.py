@@ -49,6 +49,10 @@ _INV = [0, 4, 3, 2, 1, 5, 6, 7, 8, 9]
 # forbidden I J L Q V and 0; B C S U reserved.
 MEMORY_ID_RE = re.compile(r"^[1-9ADEFGHKMNOPRTWXYZ]{6}$")
 TAXID_RE = re.compile(r"^[0-9A-Z]{6}[0-9A-F]{5}[0-9A-F]{10}[0-9]$")
+# Explicit ASCII classes: str.isdigit(), \d and int() also accept Persian/Arabic digits.
+_LATIN_ALNUM_RE = re.compile(r"^[0-9A-Z]{6}$")
+_HEX15_RE = re.compile(r"^[0-9A-F]{15}$")
+_DIGIT = "0123456789"
 
 
 def verhoeff_check_digit(number: str) -> int:
@@ -66,7 +70,7 @@ def verhoeff_is_valid(number_with_check: str) -> bool:
 
 
 def to_decimal(memory_id: str) -> str:
-    return "".join(ch if ch.isdigit() else str(ord(ch)) for ch in memory_id.upper())
+    return "".join(ch if ch in _DIGIT else str(ord(ch)) for ch in memory_id.upper())
 
 
 def control_string(memory_id: str, days: int, serial: int) -> str:
@@ -81,6 +85,8 @@ def generate(memory_id: str, indatim_ms: int, serial: int) -> str:
     memory_id = memory_id.upper()
     if len(memory_id) != 6:
         raise ValueError(f"memory id must be 6 characters, got {len(memory_id)}")
+    if not _LATIN_ALNUM_RE.match(memory_id):
+        raise ValueError("memory id must use Latin letters A-Z and digits 0-9 only")
     if not 0 <= serial <= MAX_SERIAL:
         raise ValueError("serial must fit in 10 hex digits (0..0xFFFFFFFFFF)")
     days = days_from_ms(indatim_ms)
@@ -98,11 +104,10 @@ def decode(taxid: str) -> dict:
         return out
     mem, days_hex, serial_hex, check = t[:6], t[6:11], t[11:21], t[21]
     out.update(memory_id=mem, days_hex=days_hex, serial_hex=serial_hex, check_digit=check)
-    try:
-        days, serial = int(days_hex, 16), int(serial_hex, 16)
-    except ValueError:
-        out["error"] = "date or serial part is not hexadecimal"
+    if not _HEX15_RE.match(days_hex + serial_hex):
+        out["error"] = "date or serial part is not hexadecimal (use Latin 0-9 A-F)"
         return out
+    days, serial = int(days_hex, 16), int(serial_hex, 16)
     out["days_since_epoch"] = days
     out["date_utc"] = datetime.fromtimestamp(days * 86400, tz=timezone.utc).date().isoformat()
     out["serial"] = serial
@@ -124,12 +129,12 @@ def validate(taxid: str, indatim_ms: int | None = None, inno: str | None = None)
             "memory id uses characters outside the RC_DCPS.SN_V1.3 alphabet "
             "(allowed 1-9 ADEFGHKMNOPRTWXYZ; 0 I J L Q V forbidden; B C S U reserved)"
         )
-    if t[21].isdigit() and not errors:
+    if t[21] in _DIGIT and not errors:
         expected = verhoeff_check_digit(control_string(info["memory_id"], info["days_since_epoch"], info["serial"]))
         info["check_digit_expected"] = str(expected)
         if str(expected) != t[21]:
             errors.append(f"check digit is {t[21]}, expected {expected}")
-    elif not t[21].isdigit():
+    elif t[21] not in _DIGIT:
         errors.append("check digit must be a digit 0-9")
     if indatim_ms is not None and "days_since_epoch" in info:
         d = days_from_ms(indatim_ms)

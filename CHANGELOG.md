@@ -10,6 +10,15 @@ All notable changes to this project. Versions follow [semver](https://semver.org
 Before 1.0.0, a minor bump may also include changes of the "major" kind; they are listed
 under **Changed** with the word *behaviour*.
 
+## [Unreleased]
+
+### Fixed
+- Digit-string fields (`tins`, `tinb`, `sstid`, `mu`, `bpc`, …) now reject Persian (۰-۹) and
+  Arabic-Indic (٠-٩) digits, as the system's regex does (code shape `01FFF04`); `str.isdigit()`
+  had let them pass. The error says to use Latin digits 0-9. Same fix in the check-digit helpers
+  (`_ids.py`), `taxid.py` (`decode`, `validate`, and `generate`'s memory id) and the YAML reader,
+  which had turned unquoted Persian digits into numbers.
+
 ## [0.2.0] — 2026-10-21
 
 ### Added

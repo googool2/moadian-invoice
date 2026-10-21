@@ -71,9 +71,9 @@ def _scalar(token: str):
         return True
     if low == "false":
         return False
-    if re.fullmatch(r"[-+]?\d+", token) and not (len(token.lstrip("+-")) > 1 and token.lstrip("+-")[0] == "0"):
+    if re.fullmatch(r"[-+]?[0-9]+", token) and not (len(token.lstrip("+-")) > 1 and token.lstrip("+-")[0] == "0"):
         return int(token)
-    if re.fullmatch(r"[-+]?\d+\.\d+", token):
+    if re.fullmatch(r"[-+]?[0-9]+\.[0-9]+", token):
         return float(token)
     return token  # leading-zero numbers stay strings (codes like 0300101)
 

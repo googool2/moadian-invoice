@@ -42,9 +42,12 @@ def check_type(rep: Report, path: str, field: str, value) -> None:
             rep.error(path, f"{field} must be a JSON string", "type", src, actual=type(value).__name__,
                       code=code_hint(field, "1", "03"))
             return
-        if kind == "N" and not value.isdigit():
-            rep.error(path, f"{field} must contain digits 0-9 only", "regex", src, actual=value,
-                      code=code_hint(field, "1", "04"))
+        if kind == "N" and not (value.isascii() and value.isdigit()):
+            # str.isdigit() is also True for Persian (۰-۹) and Arabic-Indic (٠-٩) digits
+            msg = f"{field} must contain digits 0-9 only"
+            if value.isdigit():
+                msg += " (found Persian/Arabic digits; use Latin digits 0-9)"
+            rep.error(path, msg, "regex", src, actual=value, code=code_hint(field, "1", "04"))
             return
         n = len(value)
         if rest.startswith("<="):
