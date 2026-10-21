@@ -46,11 +46,18 @@ def test_invalid_arith_example_reports_exact_errors():
     res = V.validate(load("invoice-invalid-arith.json"))
     assert not res["ok"]
     got = {(e["path"], e.get("expected")) for e in res["errors"]}
+    # root error and everything derived from it, with corrected (cascaded) expectations
     assert ("body[0].prdis", 1000000) in got
-    assert ("header.tvam", 190000) in got
-    assert ("header.tbill", 2090001) in got
-    assert "header.cap" in paths(res)
-    assert res["error_count"] == 4
+    assert ("body[0].adis", 1000000) in got
+    assert ("body[0].tsstam", 1100000) in got
+    assert ("header.tprdis", 2000000) in got
+    assert ("header.tadis", 1900000) in got
+    assert ("header.tvam", 190000) in got       # independent error
+    assert ("header.tbill", 2090000) in got
+    assert ("header.cap", "<= 1900000") in got
+    assert res["error_count"] == 8
+    derived = [e for e in res["errors"] if "follows from" in e["message"] or "corrected body" in e["message"]]
+    assert len(derived) == 5 and all("code_hint" not in e for e in derived)
     assert "header.insp" in paths(res, "warnings")
 
 

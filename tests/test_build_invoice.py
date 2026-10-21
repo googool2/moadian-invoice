@@ -152,3 +152,11 @@ def test_cli_bad_input(tmp_path, capsys):
     bad.write_text("seller_tin: 1\n", encoding="utf-8")
     assert B.main([str(bad), "--state-dir", str(tmp_path)]) == 2
     assert not json.loads(capsys.readouterr().out)["ok"]
+
+
+@needs_lib
+def test_no_unit_means_no_mu(spec, tmp_path):
+    del spec["items"][0]["unit"]
+    res = B.build(spec, state_dir=str(tmp_path))
+    assert res["invoice"]["body"][0]["mu"] is None  # not moadian-full's default "164"
+    assert any(c["path"] == "body[0].mu" and c["moadian_full"] == "164" for c in res["corrections"])

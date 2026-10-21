@@ -56,6 +56,7 @@ BODY_WHY = {
     "dis": "dis is the line's total discount; moadian-full multiplies it by am (S1 §7-39)",
     "vop": "vop is the VAT share of the cash payment, only meaningful with setm=3 (S1 §7-49)",
     "prdis": "prdis = am × fee, truncated (S1 §7-38)",
+    "mu": "no unit given; moadian-full silently inserts \"164\", which is not a verified RC_UMGS code (mu is optional)",
 }
 HEADER_WHY = {
     "cap": "cap is the cash amount excluding VAT; only mandatory for setm=3 (S1 §7-23)",
@@ -196,12 +197,12 @@ def build(spec: dict, serial: int | None = None, state_dir: str | None = None) -
         vam = _trunc(Decimal(adis) * vra / 100)
         odam, olam = int(it.get("odam") or 0), int(it.get("olam") or 0)
         new = {"prdis": prdis, "dis": _trunc(dis), "adis": adis, "vam": vam, "tsstam": adis + vam + odam + olam,
-               "vop": None, "am": it.get("am", 1), "vra": it.get("vra", 10)}
+               "vop": None, "am": it.get("am", 1), "vra": it.get("vra", 10), "mu": it.get("mu")}
         for k, v in new.items():
             fix(f"body[{i}].{k}", line.get(k), v, BODY_WHY.get(k, "follows from the corrected discount (S1 §7-40…§7-51)"))
             line[k] = v
         for k, v in it.items():  # pass through any other raw body codes (odt, odr, odam, cfee, ...)
-            if k not in new and k not in ("sstid", "sstt", "fee", "mu"):
+            if k not in new and k not in ("sstid", "sstt", "fee"):
                 line[k] = v
     if not items:
         inv["body"] = []

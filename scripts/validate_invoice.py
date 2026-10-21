@@ -16,64 +16,16 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from decimal import ROUND_DOWN, Decimal, InvalidOperation
+from decimal import Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import _spec as spec  # noqa: E402
-import explain_error  # noqa: E402
 import taxid as taxid_mod  # noqa: E402
+from _arith import check_arithmetic  # noqa: E402
+from _common import FIELD_NO, Report, _plain, code_hint, num  # noqa: E402
 
 SECTIONS = ("header", "body", "payments")
-FIELD_NO = {name: no for no, name in explain_error.load_field_numbers().items()}
-HUNDRED = Decimal(100)
-
-
-def trunc(x: Decimal, places: int = 0) -> Decimal:
-    """S1 general rule 1: amounts are truncated («روش قطع کردن»), never rounded."""
-    return x.quantize(Decimal(1).scaleb(-places), rounding=ROUND_DOWN)
-
-
-def code_hint(field: str, check_type: str, detail: str = "") -> str | None:
-    """Likely system code per the K T FFF DD scheme (references/errors.md §2)."""
-    no = FIELD_NO.get(field)
-    return f"0{check_type}{no}{detail}" if no else None
-
-
-class Report:
-    def __init__(self) -> None:
-        self.errors: list[dict] = []
-        self.warnings: list[dict] = []
-        self.notes: list[str] = []
-
-    def add(self, severity, path, message, rule, source, expected=None, actual=None, code=None):
-        item = {"path": path, "message": message, "rule": rule, "source": source}
-        if expected is not None or actual is not None:
-            item["expected"], item["actual"] = _plain(expected), _plain(actual)
-        if code:
-            item["code_hint"] = code
-        (self.errors if severity == "error" else self.warnings).append(item)
-
-    def error(self, *a, **k):
-        self.add("error", *a, **k)
-
-    def warn(self, *a, **k):
-        self.add("warning", *a, **k)
-
-
-def _plain(v):
-    if isinstance(v, Decimal):
-        return int(v) if v == v.to_integral_value() else float(v)
-    return v
-
-
-def num(v) -> Decimal | None:
-    if v is None or isinstance(v, bool):
-        return None
-    try:
-        return Decimal(str(v))
-    except (InvalidOperation, ValueError):
-        return None
 
 
 # ---------------------------------------------------------------- types ----
@@ -289,117 +241,6 @@ def check_conditional(rep: Report, inv, inty, inp, ins) -> None:
     if unchecked:
         rep.notes.append("conditionally-mandatory fields not machine-checked (read their rules in references/"
                          "fields.md): " + ", ".join(unchecked))
-
-
-# ---------------------------------------------------------- arithmetic ----
-def _eq(rep, path, field, expected, actual, rule, source, code=None):
-    if expected is None or actual is None:
-        return
-    if expected != actual:
-        rep.error(path, f"{field} should be {_plain(expected)}, found {_plain(actual)}", rule, source,
-                  expected=expected, actual=actual, code=code)
-
-
-def check_arithmetic(rep: Report, inv, inty, inp, ins) -> dict:
-    h = inv["header"]
-    body = [b for b in inv.get("body") or [] if isinstance(b, dict)]
-    sums = {k: Decimal(0) for k in ("prdis", "dis", "adis", "vam", "odam", "olam", "tsstam", "nw", "ssrv", "sscv", "vop")}
-    seen = set()
-    for i, b in enumerate(body):
-        g = {k: num(b.get(k)) for k in ("am", "fee", "cfee", "exr", "prdis", "dis", "adis", "vra", "vam", "odr", "odam",
-                                         "olr", "olam", "tsstam", "ssrv", "consfee", "spro", "bros", "tcpbs", "sovat",
-                                         "vba", "nw", "sscv", "vop", "cop")}
-        p = f"body[{i}]"
-        for k in sums:
-            if g.get(k) is not None:
-                sums[k] += g[k]
-                seen.add(k)
-        if inp == 7:  # export (S1 §7-42, §7-51)
-            if g["ssrv"] is not None and g["vra"] is not None:
-                _eq(rep, p + ".vam", "vam", trunc(g["ssrv"] * g["vra"] / HUNDRED), g["vam"], "R7", "S1 §7-42", "0204501")
-            base = g["ssrv"]
-        else:
-            if inp == 2 and g["cfee"] is not None and g["exr"] is not None:
-                exp_prdis = trunc(g["cfee"] * g["exr"])
-            elif inp == 6 and g["fee"] is not None:
-                exp_prdis = trunc(g["fee"])
-            elif g["am"] is not None and g["fee"] is not None:
-                exp_prdis = trunc(g["am"] * g["fee"])
-            else:
-                exp_prdis = None
-            _eq(rep, p + ".prdis", "prdis", exp_prdis, g["prdis"], "R4 prdis = am × fee (truncated)", "S1 §7-38", "0204101")
-            if g["dis"] is not None and g["prdis"] is not None and g["dis"] > g["prdis"]:
-                rep.error(p + ".dis", "dis (the line's total discount) cannot exceed prdis", "R5", "S1 §7-39",
-                          expected=f"<= {_plain(g['prdis'])}", actual=g["dis"], code="0204201")
-            if inp == 3:
-                if None not in (g["consfee"], g["spro"], g["bros"]):
-                    _eq(rep, p + ".tcpbs", "tcpbs", g["consfee"] + g["spro"] + g["bros"], g["tcpbs"], "R19", "S1 §7-47")
-                exp_adis = None if None in (g["prdis"], g["dis"], g["tcpbs"]) else g["prdis"] + g["tcpbs"] - g["dis"]
-            else:
-                exp_adis = None if None in (g["prdis"], g["dis"]) else g["prdis"] - g["dis"]
-            _eq(rep, p + ".adis", "adis", exp_adis, g["adis"], "R6 adis = prdis − dis", "S1 §7-40", "0204301")
-            base = g["adis"]
-            if g["vra"] is not None and g["vam"] is not None:
-                if inp == 3 and g["tcpbs"] is not None and g["prdis"] is not None:
-                    a, c = g["tcpbs"] * 10 / HUNDRED, g["prdis"] * g["vra"] / HUNDRED
-                    options = {trunc(a + c), trunc(a) + trunc(c)}
-                    if g["vam"] not in options:
-                        rep.error(p + ".vam", f"vam should be {_plain(min(options))}", "R7 gold", "S1 §7-42",
-                                  expected=min(options), actual=g["vam"], code="0204501")
-                elif inp == 2 and g["sovat"] is not None:
-                    _eq(rep, p + ".vam", "vam", trunc(g["sovat"] * g["vra"] / HUNDRED), g["vam"], "R7", "S1 §7-42", "0204501")
-                elif inp == 9 and g["vba"] is not None and g["am"] is not None:
-                    _eq(rep, p + ".vam", "vam", trunc(g["am"] * g["vba"]), g["vam"], "R7 petroleum", "S1 §7-42", "0204501")
-                elif g["adis"] is not None:
-                    _eq(rep, p + ".vam", "vam", trunc(g["adis"] * g["vra"] / HUNDRED), g["vam"],
-                        "R7 vam = adis × vra / 100 (truncated)", "S1 §7-42", "0204501")
-        rate_base = g["tcpbs"] if inp == 3 else base
-        for amt, rate in (("odam", "odr"), ("olam", "olr")):
-            if g[rate] is not None and rate_base is not None:
-                _eq(rep, f"{p}.{amt}", amt, trunc(rate_base * g[rate] / HUNDRED), g[amt], "R8", "S1 §7-43")
-            if g["vra"] == 0 and (g[amt] or 0) != 0:
-                rep.error(f"{p}.{amt}", f"{amt} must be 0 when vra is 0", "R8", "S1 §7-43", actual=g[amt])
-        if base is not None and g["vam"] is not None:
-            exp = base + g["vam"] + (g["odam"] or 0) + (g["olam"] or 0)
-            _eq(rep, p + ".tsstam", "tsstam", exp, g["tsstam"], "R9 tsstam = adis + vam + odam + olam", "S1 §7-51")
-    if ins == 3 and not body:
-        return {}
-    totals = [("tprdis", "prdis", "S1 §7-13"), ("tdis", "dis", "S1 §7-14"), ("tadis", "adis", "S1 §7-15"),
-              ("tvam", "vam", "S1 §7-16"), ("tbill", "tsstam", "S1 §7-18"), ("tonw", "nw", "S1 §7-19"),
-              ("torv", "ssrv", "S1 §7-20"), ("tocv", "sscv", "S1 §7-21"), ("tvop", "vop", "S1 §7-25")]
-    for hf, bf, src in totals:
-        if bf in seen:
-            _eq(rep, f"header.{hf}", hf, sums[bf], num(h.get(hf)), f"R10 {hf} = Σ {bf}", src, code_hint(hf, "2", "01"))
-    if "odam" in seen or "olam" in seen or h.get("todam") is not None:
-        _eq(rep, "header.todam", "todam", sums["odam"] + sums["olam"], num(h.get("todam")), "R10 todam = Σodam + Σolam",
-            "S1 §7-17", code_hint("todam", "2", "01"))
-    tbill, tvam, todam = num(h.get("tbill")), num(h.get("tvam")) or 0, num(h.get("todam")) or 0
-    if (num(h.get("tprdis")) or 0) <= 0 and spec.status("tprdis", inty or 0, inp or 0) == "M":
-        rep.error("header.tprdis", "tprdis must be greater than 0", "R10", "S1 §7-13", code="0102205")
-    cap, insp = num(h.get("cap")), num(h.get("insp"))
-    if tbill is not None:
-        net = tbill - tvam - todam
-        if h.get("setm") == 3 and cap is not None and insp is not None:
-            _eq(rep, "header.cap", "cap + insp", net, cap + insp, "R12/R13 cap + insp = tbill − tvam − todam",
-                "S1 §7-23, §7-24")
-            for f, v in (("cap", cap), ("insp", insp)):
-                if v <= 0:
-                    rep.error(f"header.{f}", f"{f} must be > 0 when setm=3", "R12/R13", "S1 §7-23, §7-24", actual=v)
-        elif cap is not None and cap > net:
-            rep.error("header.cap", "cap is the cash amount EXCLUDING VAT and other taxes, so it cannot exceed "
-                      "tbill − tvam − todam (moadian-full 0.0.2 sets cap=tbill)", "R12", "S1 §7-23",
-                      expected=f"<= {_plain(net)}", actual=cap)
-    if num(h.get("tax17")) is not None and num(h.get("tax17")) > tvam:
-        rep.error("header.tax17", "tax17 cannot exceed tvam", "R17", "S1 §7-26", actual=h.get("tax17"))
-    for i, pmt in enumerate(inv.get("payments") or []):
-        pv = num(pmt.get("pv")) if isinstance(pmt, dict) else None
-        if pv is None:
-            continue
-        if h.get("setm") == 2 and pv != 0:
-            rep.error(f"payments[{i}].pv", "pv must be 0 on a credit (setm=2) invoice", "R20", "S1 §7-60", actual=pv)
-        if tbill is not None and pv > tbill:
-            rep.error(f"payments[{i}].pv", "pv cannot exceed tbill", "R20", "S1 §7-60", actual=pv)
-    return {k: _plain(v) for k, v in sums.items() if k in seen}
 
 
 # --------------------------------------------------------------- taxid ----
