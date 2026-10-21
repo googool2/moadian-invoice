@@ -10,7 +10,7 @@ All notable changes to this project. Versions follow [semver](https://semver.org
 Before 1.0.0, a minor bump may also include changes of the "major" kind; they are listed
 under **Changed** with the word *behaviour*.
 
-## [0.2.0] — unreleased
+## [0.2.0] — 2026-10-21
 
 ### Added
 - `moadian-send` skill with `send_invoice.py`: offline `prepare` (validation, one-week date
