@@ -1,0 +1,45 @@
+name: release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag, plugin.json, _cli.VERSION and CHANGELOG must agree
+        run: |
+          set -euo pipefail
+          v="${GITHUB_REF_NAME#v}"
+          python3 - "$v" <<'PY'
+          import json, sys
+          sys.path.insert(0, "skills/moadian-invoice/scripts")
+          import _cli
+          v = sys.argv[1]
+          plugin = json.load(open(".claude-plugin/plugin.json", encoding="utf-8"))["version"]
+          market = json.load(open(".claude-plugin/marketplace.json", encoding="utf-8"))["metadata"]["version"]
+          print("tag", v, "| _cli", _cli.VERSION, "| plugin", plugin, "| marketplace", market)
+          sys.exit(0 if v == _cli.VERSION == plugin == market else 1)
+          PY
+          grep -q "^## \[$v\] — [0-9]" CHANGELOG.md
+          test -f "docs/releases/${GITHUB_REF_NAME}.md"
+      - name: Build one zip per skill (for claude.ai upload)
+        run: |
+          set -euo pipefail
+          for s in moadian-invoice moadian-send; do
+            git archive --format=zip --prefix="$s/" -o "$s.zip" "HEAD:skills/$s"
+          done
+          ls -l *.zip
+      - name: Create the release page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" moadian-invoice.zip moadian-send.zip \
+            --title "moadian-invoice ${GITHUB_REF_NAME}" \
+            --notes-file "docs/releases/${GITHUB_REF_NAME}.md" \
+            --verify-tag
