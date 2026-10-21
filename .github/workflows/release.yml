@@ -1,8 +1,18 @@
 name: release
 
+# Two ways in:
+# - push a tag vX.Y.Z;
+# - Actions > release > Run workflow on main with a version. The workflow then
+#   tags main's HEAD itself. A tag pushed with the workflow token does not start
+#   this workflow again, so one run does the whole release.
 on:
   push:
     tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. 0.2.0. Must match _cli.VERSION, both manifests and CHANGELOG."
+        required: true
 
 permissions:
   contents: write
@@ -12,10 +22,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Pick the tag
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            [ "$GITHUB_REF" = "refs/heads/main" ] || { echo "run this from main, not $GITHUB_REF"; exit 1; }
+            [[ "$INPUT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "version must look like 1.2.3"; exit 1; }
+            tag="v$INPUT_VERSION"
+          else
+            tag="$GITHUB_REF_NAME"
+          fi
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "releasing $tag from $(git rev-parse HEAD)"
       - name: Tag, plugin.json, _cli.VERSION and CHANGELOG must agree
         run: |
           set -euo pipefail
-          v="${GITHUB_REF_NAME#v}"
+          v="${TAG#v}"
           python3 - "$v" <<'PY'
           import json, sys
           sys.path.insert(0, "skills/moadian-invoice/scripts")
@@ -27,7 +51,22 @@ jobs:
           sys.exit(0 if v == _cli.VERSION == plugin == market else 1)
           PY
           grep -q "^## \[$v\] — [0-9]" CHANGELOG.md
-          test -f "docs/releases/${GITHUB_REF_NAME}.md"
+          test -f "docs/releases/${TAG}.md"
+      - name: Create the tag (manual runs only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          head="$(git rev-parse HEAD)"
+          if [ -n "$(git ls-remote --tags origin "refs/tags/${TAG}")" ]; then
+            git fetch --quiet origin "refs/tags/${TAG}:refs/tags/${TAG}"
+            [ "$(git rev-parse "${TAG}^{commit}")" = "$head" ] || { echo "$TAG already exists on another commit"; exit 1; }
+            echo "$TAG already points at $head"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "moadian-invoice $TAG" "$head"
+            git push origin "refs/tags/$TAG"
+          fi
       - name: Build one zip per skill (for claude.ai upload)
         run: |
           set -euo pipefail
@@ -39,7 +78,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" moadian-invoice.zip moadian-send.zip \
-            --title "moadian-invoice ${GITHUB_REF_NAME}" \
-            --notes-file "docs/releases/${GITHUB_REF_NAME}.md" \
+          gh release create "$TAG" moadian-invoice.zip moadian-send.zip \
+            --title "moadian-invoice ${TAG}" \
+            --notes-file "docs/releases/${TAG}.md" \
             --verify-tag
