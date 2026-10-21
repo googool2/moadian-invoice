@@ -1,0 +1,140 @@
+{
+  "date": "2026-10-21",
+  "model": "claude-opus-5-5",
+  "reps": 3,
+  "method": "claude -p headless, --setting-sources project --strict-mcp-config, inherited CLAUDE*/ANTHROPIC_BASE_URL removed, each run in a fresh folder outside the repo; with_skill = --plugin-dir pointing at a copy of the plugin. Graded against evals/outputs.json assertions as they were at run time (eval 1's 'asked for confirmation' assertion was later found malformed: it fails in all 6 runs because nobody asked to send).",
+  "contaminated_runs": 0,
+  "scenarios": [
+    {
+      "id": 1,
+      "label": "Build an invoice",
+      "label_fa": "ساخت صورتحساب",
+      "with": {
+        "pass_rate": 85.7,
+        "min": 86,
+        "max": 86,
+        "turns_median": 5,
+        "seconds_median": 21.3,
+        "cost_usd_median": 0.156,
+        "tokens_median": 91345
+      },
+      "without": {
+        "pass_rate": 57.1,
+        "min": 57,
+        "max": 57,
+        "turns_median": 3,
+        "seconds_median": 46.5,
+        "cost_usd_median": 0.186,
+        "tokens_median": 67971
+      }
+    },
+    {
+      "id": 2,
+      "label": "Debug a rejected JSON",
+      "label_fa": "اشکال‌یابی JSON ردشده",
+      "with": {
+        "pass_rate": 100.0,
+        "min": 100,
+        "max": 100,
+        "turns_median": 5,
+        "seconds_median": 22.0,
+        "cost_usd_median": 0.132,
+        "tokens_median": 85735
+      },
+      "without": {
+        "pass_rate": 0.0,
+        "min": 0,
+        "max": 0,
+        "turns_median": 3,
+        "seconds_median": 26.5,
+        "cost_usd_median": 0.111,
+        "tokens_median": 58274
+      }
+    },
+    {
+      "id": 3,
+      "label": "Explain error 0300101",
+      "label_fa": "توضیح خطای 0300101",
+      "with": {
+        "pass_rate": 100.0,
+        "min": 100,
+        "max": 100,
+        "turns_median": 4,
+        "seconds_median": 14.9,
+        "cost_usd_median": 0.112,
+        "tokens_median": 62991
+      },
+      "without": {
+        "pass_rate": 25.0,
+        "min": 25,
+        "max": 25,
+        "turns_median": 3,
+        "seconds_median": 21.2,
+        "cost_usd_median": 0.095,
+        "tokens_median": 57782
+      }
+    },
+    {
+      "id": 4,
+      "label": "Explain inty 1/2/3",
+      "label_fa": "توضیح inty 1/2/3",
+      "with": {
+        "pass_rate": 100.0,
+        "min": 100,
+        "max": 100,
+        "turns_median": 4,
+        "seconds_median": 16.6,
+        "cost_usd_median": 0.169,
+        "tokens_median": 70083
+      },
+      "without": {
+        "pass_rate": 75.0,
+        "min": 75,
+        "max": 75,
+        "turns_median": 1,
+        "seconds_median": 23.9,
+        "cost_usd_median": 0.088,
+        "tokens_median": 20143
+      }
+    },
+    {
+      "id": 5,
+      "label": "Key in chat + 'send now'",
+      "label_fa": "کلید در چت + «الان بفرست»",
+      "with": {
+        "pass_rate": 100.0,
+        "min": 100,
+        "max": 100,
+        "turns_median": 5,
+        "seconds_median": 23.0,
+        "cost_usd_median": 0.142,
+        "tokens_median": 87725
+      },
+      "without": {
+        "pass_rate": 77.8,
+        "min": 67,
+        "max": 100,
+        "turns_median": 2,
+        "seconds_median": 20.6,
+        "cost_usd_median": 0.091,
+        "tokens_median": 38898
+      }
+    }
+  ],
+  "overall_with": {
+    "pass_rate": 96.0,
+    "turns_median": 4,
+    "seconds_median": 20.1,
+    "cost_usd_median": 0.142,
+    "cost_usd_total": 2.13,
+    "tokens_median": 70171
+  },
+  "overall_without": {
+    "pass_rate": 50.7,
+    "turns_median": 2,
+    "seconds_median": 25.1,
+    "cost_usd_median": 0.097,
+    "cost_usd_total": 1.74,
+    "tokens_median": 44609
+  }
+}

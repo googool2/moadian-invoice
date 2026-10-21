@@ -1,0 +1,76 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: python -m pip install moadian-full pytest pyflakes
+      - name: Lint (undefined names, unused imports)
+        run: python -m pyflakes skills bench tests
+      - name: Tests
+        run: python -m pytest -q tests
+      - name: Benchmark
+        run: python bench/bench.py --out bench-out
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: RESULTS-${{ matrix.os }}-py${{ matrix.python }}
+          path: bench-out/
+          if-no-files-found: warn
+
+  skill:
+    name: skill and plugin manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: SKILL.md frontmatter
+        run: |
+          python - <<'PY'
+          import pathlib, re, sys
+          ok = True
+          for f in sorted(pathlib.Path("skills").glob("*/SKILL.md")):
+              text = f.read_text(encoding="utf-8")
+              m = re.match(r"^---\nname: ([a-z0-9-]+)\ndescription: (.+?)\n---\n", text, re.S)
+              if not m or m.group(1) != f.parent.name or len(m.group(2)) > 1024:
+                  ok = False
+                  print("bad frontmatter:", f)
+              else:
+                  print("ok:", f, "description", len(m.group(2)), "chars")
+          sys.exit(0 if ok else 1)
+          PY
+      - name: Manifests are valid JSON with one version
+        run: |
+          python - <<'PY'
+          import json, re, sys
+          sys.path.insert(0, "skills/moadian-invoice/scripts")
+          import _cli
+          plugin = json.load(open(".claude-plugin/plugin.json", encoding="utf-8"))
+          market = json.load(open(".claude-plugin/marketplace.json", encoding="utf-8"))
+          versions = {plugin["version"], market["metadata"]["version"], *(p["version"] for p in market["plugins"]), _cli.VERSION}
+          print("versions:", versions)
+          sys.exit(0 if len(versions) == 1 else 1)
+          PY

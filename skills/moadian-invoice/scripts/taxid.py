@@ -22,6 +22,8 @@ import argparse
 import json
 import re
 import sys
+
+import _cli
 from datetime import datetime, timezone
 
 DAY_MS = 86_400_000
@@ -155,7 +157,9 @@ def _parse_date(text: str) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _cli.setup_stdout()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    _cli.add_version(ap, "taxid")
     sub = ap.add_subparsers(dest="cmd", required=True)
     g = sub.add_parser("generate", help="build a taxid")
     g.add_argument("--memory-id", required=True)

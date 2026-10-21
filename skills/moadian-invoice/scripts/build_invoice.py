@@ -40,6 +40,7 @@ from decimal import Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _cli  # noqa: E402
 import _mini_yaml  # noqa: E402
 import _moadian  # noqa: E402
 import taxid as taxid_mod  # noqa: E402
@@ -56,6 +57,7 @@ BODY_WHY = {
     "dis": "dis is the line's total discount; moadian-full multiplies it by am (S1 §7-39)",
     "vop": "vop is the VAT share of the cash payment, only meaningful with setm=3 (S1 §7-49)",
     "prdis": "prdis = am × fee, truncated (S1 §7-38)",
+    "sstt": "no description given; an empty string fails the format check, so it is left out (sstt is optional)",
     "mu": "no unit given; moadian-full silently inserts \"164\", which is not a verified RC_UMGS code (mu is optional)",
 }
 HEADER_WHY = {
@@ -172,7 +174,7 @@ def build(spec: dict, serial: int | None = None, state_dir: str | None = None) -
         if old != new:
             fixes.append({"path": path, "moadian_full": old, "corrected": new, "why": why})
 
-    # taxid: moadian-full 0.0.2 fails every official example (references/workflow.md)
+    # taxid: moadian-full 0.0.2 fails every official example (references/workflow.md §2)
     used_serial = int(h["inno"], 16)
     good = taxid_mod.generate(memory_id, h["indatim"], used_serial)
     fix("header.taxid", h["taxid"], good, "official check digit (RC_DCPS.SN_V1.3); library digit is wrong")
@@ -197,12 +199,13 @@ def build(spec: dict, serial: int | None = None, state_dir: str | None = None) -
         vam = _trunc(Decimal(adis) * vra / 100)
         odam, olam = int(it.get("odam") or 0), int(it.get("olam") or 0)
         new = {"prdis": prdis, "dis": _trunc(dis), "adis": adis, "vam": vam, "tsstam": adis + vam + odam + olam,
-               "vop": None, "am": it.get("am", 1), "vra": it.get("vra", 10), "mu": it.get("mu")}
+               "vop": None, "am": it.get("am", 1), "vra": it.get("vra", 10), "mu": it.get("mu"),
+               "sstt": it.get("sstt") or None}
         for k, v in new.items():
             fix(f"body[{i}].{k}", line.get(k), v, BODY_WHY.get(k, "follows from the corrected discount (S1 §7-40…§7-51)"))
             line[k] = v
         for k, v in it.items():  # pass through any other raw body codes (odt, odr, odam, cfee, ...)
-            if k not in new and k not in ("sstid", "sstt", "fee"):
+            if k not in new and k not in ("sstid", "fee"):
                 line[k] = v
     if not items:
         inv["body"] = []
@@ -240,7 +243,9 @@ def load_input(path: str) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _cli.setup_stdout()
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    _cli.add_version(ap, "build_invoice")
     ap.add_argument("input", help="YAML or JSON description (or - for stdin)")
     ap.add_argument("-o", "--output", help="write the invoice JSON here (default: print only)")
     ap.add_argument("--serial", help="invoice serial (decimal, or 0x-prefixed hex); overrides the input file")
@@ -255,7 +260,9 @@ def main(argv: list[str] | None = None) -> int:
     except (ValueError, KeyError, TypeError, _moadian.MoadianFullMissing) as exc:
         print(json.dumps({"ok": False, "error": f"{type(exc).__name__}: {exc}"}, ensure_ascii=False, indent=2))
         return 2
-    check = validate_invoice.validate(result["invoice"])
+    # validate against the current time, so an invoice outside the sending window is flagged now
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    check = validate_invoice.validate(result["invoice"], now_ms)
     report = {"ok": check["ok"], "taxid": result["taxid"], "inno": result["inno"], "indatim": result["indatim"],
               "output": args.output, "corrections_to_moadian_full": result["corrections"],
               "validation": {k: check[k] for k in ("ok", "error_count", "warning_count", "errors", "warnings")}}

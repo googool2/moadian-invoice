@@ -7,7 +7,7 @@ import pytest
 import taxid as T
 import validate_invoice as V
 
-EX = Path(__file__).resolve().parent.parent / "examples"
+EX = Path(__file__).resolve().parent.parent / "skills" / "moadian-invoice" / "examples"
 
 
 def load(name):

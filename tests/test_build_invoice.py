@@ -14,7 +14,7 @@ try:
 except _moadian.MoadianFullMissing:  # pragma: no cover
     LIB = None
 needs_lib = pytest.mark.skipif(LIB is None, reason="moadian-full not installed")
-EX = Path(__file__).resolve().parent.parent / "examples"
+EX = Path(__file__).resolve().parent.parent / "skills" / "moadian-invoice" / "examples"
 
 
 @pytest.fixture
@@ -52,7 +52,7 @@ def test_loader_imports_no_network_code():
     code = ("import sys; sys.path.insert(0, 'scripts'); import _moadian; _moadian.load(); "
             "print(sorted(m for m in ('requests', 'authlib', 'cryptography') if m in sys.modules))")
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
-                         cwd=Path(__file__).resolve().parent.parent, check=True).stdout.strip()
+                         cwd=Path(__file__).resolve().parent.parent / "skills" / "moadian-invoice", check=True).stdout.strip()
     assert out == "[]"
 
 
@@ -160,3 +160,20 @@ def test_no_unit_means_no_mu(spec, tmp_path):
     res = B.build(spec, state_dir=str(tmp_path))
     assert res["invoice"]["body"][0]["mu"] is None  # not moadian-full's default "164"
     assert any(c["path"] == "body[0].mu" and c["moadian_full"] == "164" for c in res["corrections"])
+
+
+@needs_lib
+def test_no_description_means_no_sstt(spec, tmp_path):
+    del spec["items"][0]["description"]
+    res = B.build(spec, state_dir=str(tmp_path))
+    assert res["invoice"]["body"][0]["sstt"] is None
+    assert V.validate(res["invoice"])["ok"]
+
+
+@needs_lib
+def test_build_report_flags_an_old_invoice_date(tmp_path, capsys):
+    # the example is dated 1405-02-01; the built-in validation now uses the current time
+    rc = B.main([str(EX / "build-input.yaml"), "--state-dir", str(tmp_path)])
+    report = json.loads(capsys.readouterr().out)
+    assert rc == 0 and report["ok"]
+    assert any(w["path"] == "header.indatim" for w in report["validation"]["warnings"])

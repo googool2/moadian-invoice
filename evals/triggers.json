@@ -48,5 +48,55 @@
     "id": "n5-national-code-validator",
     "should_trigger": false,
     "query": "یه تابع پایتون بنویس که کد ملی ۱۰ رقمی ایران رو اعتبارسنجی کنه (رقم کنترل آخر) و برای فرم ثبت‌نام سایتمون استفاده کنیم."
+  },
+  {
+    "id": "t6-setm-cap-insp",
+    "should_trigger": true,
+    "query": "توی JSON صورتحساب مودیان فیلدهای setm و cap و insp رو نمی‌فهمم. فروشمون نصفش نقده نصفش نسیه، این سه تا رو چی بذارم که سامانه رد نکنه؟"
+  },
+  {
+    "id": "t7-english-error-codes",
+    "should_trigger": true,
+    "query": "Our Moadian inquiry came back FAILED with errors 0204501 and a warning 1300501. What do they mean and what do we change in the payload?"
+  },
+  {
+    "id": "t8-gold-pattern",
+    "should_trigger": true,
+    "query": "یه صورتحساب طلا برای سامانه مودیان دارم (الگوی سوم). اجرت ساخت، سود فروشنده و حق‌العمل رو کجای JSON بذارم و مالیاتش چطور حساب میشه؟"
+  },
+  {
+    "id": "t9-correction-invoice",
+    "should_trigger": true,
+    "query": "فاکتور شماره 1042 قبلاً توی سامانه مودیان ثبت شده و مبلغش اشتباه بوده. می‌خوام صورتحساب اصلاحی بسازم؛ ins و irtaxid رو چی بذارم؟"
+  },
+  {
+    "id": "t10-check-library-output",
+    "should_trigger": true,
+    "query": "This JSON came out of moadian-full's InvoiceBuilder. Before we submit it to tp.tax.gov.ir, can you check whether tprdis, tadis, tvam and tbill are right?"
+  },
+  {
+    "id": "n6-django-invoice",
+    "should_trigger": false,
+    "query": "یه سیستم صدور فاکتور فروش با جنگو بنویس که شماره فاکتور یکتا، تاریخ شمسی و جمع کل با تخفیف داشته باشه و PDF چاپ کنه."
+  },
+  {
+    "id": "n7-corporate-income-tax",
+    "should_trigger": false,
+    "query": "درآمد مشمول مالیات شرکت ما برای اظهارنامه عملکرد سال ۱۴۰۴ رو چطور حساب کنم؟ نرخ ماده ۱۰۵ و هزینه‌های قابل قبول رو توضیح بده."
+  },
+  {
+    "id": "n8-verhoeff-go",
+    "should_trigger": false,
+    "query": "Write a Verhoeff checksum function in Go for the serial numbers we print on our product labels, with tests."
+  },
+  {
+    "id": "n9-pos-sync",
+    "should_trigger": false,
+    "query": "پرداخت‌های کارتخوان فروشگاهم رو چطور با نرم‌افزار حسابداری سپیدار همگام کنم که مغایرت بانکی پیش نیاد؟"
+  },
+  {
+    "id": "n10-jalali-dates",
+    "should_trigger": false,
+    "query": "Convert this list of Gregorian dates to Jalali (Shamsi) in Python and print them as yyyy/mm/dd: 2026-04-21, 2026-03-21, 2025-12-31."
   }
 ]
