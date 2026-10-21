@@ -6,7 +6,7 @@ import _mini_yaml as y
 def test_nested_map_and_list_of_maps():
     doc = y.loads(
         """
-seller_tin: "10101234567"   # comment
+seller_tin: "10101234565"   # comment
 buyer:
   tin: "14011576540"
   type: 1
@@ -19,7 +19,7 @@ items:
     fee: 1.5
 """
     )
-    assert doc["seller_tin"] == "10101234567"
+    assert doc["seller_tin"] == "10101234565"
     assert doc["buyer"] == {"tin": "14011576540", "type": 1}
     assert doc["items"][0]["sstt"] == "پرینتر"
     assert doc["items"][0]["am"] == 2

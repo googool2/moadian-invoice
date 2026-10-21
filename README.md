@@ -134,7 +134,10 @@ evals/              triggers.json (trigger eval), outputs.json (scenario eval), 
   official requirements table has no column for them. Some conditionally mandatory fields
   (e.g. other taxes and waybill details) are listed but not machine-checked.
 - **Online data not checked.** The skill cannot check online registries: whether an `sstid`
-  exists, its VAT rate, or a buyer's economic code.
+  exists, its VAT rate, or a buyer's economic code. It only checks the check digit of 10-digit
+  national codes and 11-digit legal-entity ids. That algorithm comes from open-source libraries,
+  not from INTA, so a failure is a warning. 12-digit foreign codes, 14-digit economic codes and
+  civil-partnership ids are not checked.
 - **No signing or sending.** The scripts never sign or send. Sending goes through moadian-full's
   client after explicit confirmation; see `references/workflow.md`.
 - **Licence.** `moadian-full` is GPL-3.0. This skill is MIT and does not bundle it; it imports

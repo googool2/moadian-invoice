@@ -20,7 +20,7 @@ EX = Path(__file__).resolve().parent.parent / "examples"
 @pytest.fixture
 def spec():
     return {
-        "memory_id": "A11216", "seller_tin": "10101234567", "date": "1405-02-01", "serial": 26,
+        "memory_id": "A11216", "seller_tin": "10101234565", "date": "1405-02-01", "serial": 26,
         "type": 1, "pattern": 1, "subject": 1, "settlement": 1,
         "buyer": {"type": 2, "tin": "14011576540"},
         "items": [{"sstid": "2330004219206", "description": "پرینتر", "quantity": 2,
@@ -83,7 +83,7 @@ def test_raw_library_output_fails_validation(tmp_path):
 
     # Pin serial/date to the RC_DCPS.SN_V1.3 example: moadian-full 0.0.2 gives ...C7, the official digit is ...C2.
     # (With a random serial the wrong digit matches the right one ~10% of the time.)
-    builder = LIB.InvoiceBuilder("DEF5GH", "10101234567", storage_path=str(tmp_path))
+    builder = LIB.InvoiceBuilder("DEF5GH", "10101234565", storage_path=str(tmp_path))
     builder.serial_manager = B._FixedSerial(12)
     builder.set_invoice_time(datetime(2020, 7, 20, 8, 0, tzinfo=timezone.utc))
     builder.set_buyer("14011576540", 2)
