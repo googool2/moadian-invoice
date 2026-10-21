@@ -7,7 +7,7 @@ when it is installed: YAML 1.1 reads `0300101` as octal (98369) and
 leading-zero number as a string. It handles the simple files build_invoice.py
 expects:
 
-    seller_tin: "10101234567"     # comments are allowed
+    seller_tin: "10101234565"     # comments are allowed
     buyer:
       tin: "14011576540"
       type: 1

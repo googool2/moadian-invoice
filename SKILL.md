@@ -72,6 +72,9 @@ python scripts/validate_invoice.py invoice.json --now <epoch-ms>   # also checks
   "not machine-checked" (the `notes`), clearly labelled as such.
 - `code_hint` is the system code the error most likely produces (derived from the code scheme).
   Call it "likely code", not a certainty.
+- An `id-check-digit` warning means a national code or legal-entity id fails its check digit
+  (algorithm from open-source libraries, not INTA). Ask the user to re-check that number; never
+  "fix" it by changing digits yourself.
 - To fix: if the user has the source data, rebuild with `build_invoice.py`; otherwise correct only
   the fields the validator named, then **run the validator again** and show it passes.
 - If the user's JSON came from moadian-full, its typical defects are listed in

@@ -20,6 +20,7 @@ from decimal import Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import _ids  # noqa: E402
 import _spec as spec  # noqa: E402
 import taxid as taxid_mod  # noqa: E402
 from _arith import check_arithmetic  # noqa: E402
@@ -244,6 +245,40 @@ def check_conditional(rep: Report, inv, inty, inp, ins) -> None:
 
 
 # --------------------------------------------------------------- taxid ----
+# ----------------------------------------------------------- id digits ----
+ID_SOURCE = "persian-tools npm 4.0.4 / PyPI 0.0.11 (secondary; see scripts/_ids.py)"
+
+
+def check_ids(rep: Report, inv) -> None:
+    """Check digits of national codes / legal-entity ids. Warnings only: the algorithms
+    come from open-source libraries, not from an INTA document."""
+    h = inv["header"]
+    tob = h.get("tob")
+    # (path, value, kind, likely code, note)
+    targets = [
+        ("header.tins", h.get("tins"), "legal", "0300901",
+         "if the seller is a legal entity (civil partnerships also use 11 digits; their algorithm is not sourced)"),
+        ("header.tinc", h.get("tinc"), "legal", None, ""),
+    ]
+    if tob != 3:
+        targets.append(("header.tinb", h.get("tinb"), "legal", "0301201", "buyer economic code (11 digits = legal entity)"))
+    if tob in (1, None):
+        targets.append(("header.bid", h.get("bid"), "national", "1301101", ""))
+    if tob == 2:
+        targets.append(("header.bid", h.get("bid"), "legal", "1301101", ""))
+    for f in ("tid", "rid", "did"):
+        targets.append((f"header.{f}", h.get(f), "auto", None, ""))
+    for i, p in enumerate(inv.get("payments") or []):
+        if isinstance(p, dict):
+            targets.append((f"payments[{i}].pid", p.get("pid"), "auto", None, ""))
+    for path, value, kind, code, note in targets:
+        problem = _ids.check(value, kind)
+        if problem:
+            rep.warn(path, f"{value} {problem}{' — ' + note if note else ''}; the system will likely reject it as "
+                     "not matching its records. Double-check the number with the user", "id-check-digit", ID_SOURCE,
+                     code=code)
+
+
 def check_taxid(rep: Report, h: dict) -> None:
     t, indatim, inno = h.get("taxid"), h.get("indatim"), h.get("inno")
     if isinstance(inno, str) and not (len(inno) == 10 and all(c in "0123456789abcdefABCDEF" for c in inno)):
@@ -277,6 +312,7 @@ def validate(inv, now_ms: int | None = None) -> dict:
     if check_structure(rep, inv):
         h = inv["header"]
         check_fields(rep, inv)
+        check_ids(rep, inv)
         inty, inp, ins = check_enums(rep, h, inv)
         check_required(rep, inv, inty, inp, ins)
         check_conditional(rep, inv, inty, inp, ins)

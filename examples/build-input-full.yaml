@@ -1,6 +1,6 @@
 # Fuller input for scripts/build_invoice.py — all identifiers are fictitious.
 memory_id: A11216
-seller_tin: "10101234567"
+seller_tin: "10101234565"
 date: 1405-02-01T10:30:00+03:30
 type: 1
 pattern: 1
@@ -10,7 +10,7 @@ settlement: 3             # mixed cash/credit
 cash_amount: 200000000    # cap: cash part EXCLUDING VAT; insp is computed
 buyer:
   type: 1                 # natural person
-  national_id: "0012345678"
+  national_id: "0012345679"
   postal_code: "1234567890"
 items:
   - sstid: "2330004219206"

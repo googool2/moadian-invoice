@@ -15,6 +15,7 @@ all of it (its machine-readable copy is `scripts/_spec.py`).
 | L | moadian-full 0.0.2 source (PyPI wheel): `invoice_builder.py`, `tax_id.py`, `verhoeff.py` | library |
 | X1 | github.com/mojtabahakimian/Taxation — wire JSON captured from the official .NET SDK 0.0.34 and SDK shim comments | secondary |
 | X2 | github.com/Mr0Hadi/OurERP — Moadian connection guide (digest of INTA documents) | secondary |
+| X3 | persian-tools: npm `@persian-tools/persian-tools` 4.0.4 (`verifyIranianNationalId`, `verifyIranianLegalId`) and PyPI `persian-tools` 0.0.11 (`national_id`, `legal_id` + tests). Check-digit algorithms for national codes and legal-entity ids; see `scripts/_ids.py` | secondary (open source) |
 
 Notation: type `str` string, `digits` numeric string (0–9 only, sent as a JSON string), `int`
 integer, `dec(a,b)` number with ≤a integer and ≤b fraction digits. `dec(18,0)` = whole rials.
@@ -35,10 +36,10 @@ although S1 prints `Indati2m` and `Tax17` in places.
 | irtaxid | شماره منحصر به فرد مالیاتی صورتحساب مرجع | taxid of the referenced invoice; mandatory when ins is 2, 3 or 4 | str 22 | C | S1 §7-6 |
 | inp | الگوی صورتحساب | Invoice pattern (sale, currency, gold, …) — see invoice-types.md | int ≤2 | M | S1 §7-7 |
 | ins | موضوع صورتحساب | Subject: 1 original, 2 correction, 3 cancellation, 4 sales return | int 1 | M | S1 §7-8 |
-| tins | شماره اقتصادی فروشنده | Seller economic code, as registered | digits 11 or 14 | M | S1 §7-9 |
+| tins | شماره اقتصادی فروشنده | Seller economic code, as registered. An 11-digit code is the legal entity's national id, whose last digit is a check digit (validator warns if it fails) | digits 11 or 14 | M | S1 §7-9; check digit X3 |
 | tob | نوع شخص خریدار | Buyer type: 1 natural person, 2 legal entity, 3 civil partnership, 4 non-Iranian | int 1 | M in type 1 (most patterns) | S1 §7-9 rule 3 |
-| bid | شماره/شناسه ملی/شناسه مشارکت مدنی/کد فراگیر اتباع خریدار | Buyer national number (10), national id (11), partnership id (11) or foreign-national code (12) | digits 10/11/12 | O/C | S1 §7-9 |
-| tinb | شماره اقتصادی خریدار | Buyer economic code. Type 1, tob 2/3: required. Type 1, tob 1/4: tinb **or** bid+bpc | digits 11 or 14 | C | S1 §7-9 rules 4–5 |
+| bid | شماره/شناسه ملی/شناسه مشارکت مدنی/کد فراگیر اتباع خریدار | Buyer national number (10), national id (11), partnership id (11) or foreign-national code (12). The 10-digit national code and 11-digit legal id carry a check digit (validator warns); partnership and foreign codes are not checked | digits 10/11/12 | O/C | S1 §7-9; check digit X3 |
+| tinb | شماره اقتصادی خریدار | Buyer economic code. Type 1, tob 2/3: required. Type 1, tob 1/4: tinb **or** bid+bpc. 11 digits (legal entity) carry a check digit (validator warns, except tob 3) | digits 11 or 14 | C | S1 §7-9 rules 4–5; check digit X3 |
 | sbc | کد شعبه فروشنده | Seller branch code | digits 4 | O | S1 §7-9 |
 | bpc | کد پستی خریدار | Buyer postal code | digits 10 | O/C | S1 §7-9 |
 | bbc | کد شعبه خریدار | Buyer branch code | digits 4 | O | S1 §7-9 |

@@ -13,7 +13,7 @@ No network access, no signing, no sending.
 Input (keys in English or the raw JSON codes; amounts in rial):
 
     memory_id: A11216            # شناسه یکتای حافظه مالیاتی (6 chars)
-    seller_tin: "10101234567"    # tins
+    seller_tin: "10101234565"    # tins
     date: 1405-02-01             # Jalali or Gregorian; date-only = 12:00 Tehran. Or indatim: <ms>
     type: 1                      # inty  1/2/3
     pattern: 1                   # inp

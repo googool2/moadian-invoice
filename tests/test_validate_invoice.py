@@ -34,7 +34,7 @@ def test_official_connection_spec_example_passes():
     # RC_TICS.IS v1.6 worked example (amounts verbatim), with a valid taxid
     ind = 18463 * 86_400_000
     inv = {"header": {"taxid": "DEF5GH0481F000000000C2", "indatim": ind, "inty": 1, "inno": "000000000C",
-                      "inp": 1, "ins": 1, "tins": "14003778990", "tob": 2, "tinb": "10101234567",
+                      "inp": 1, "ins": 1, "tins": "14003778990", "tob": 2, "tinb": "10101234565",
                       "tprdis": 20000, "tdis": 500, "tadis": 19500, "tvam": 1755, "todam": 0, "tbill": 21255,
                       "setm": 2},
            "body": [{"sstid": "2330004219206", "am": 2, "fee": 10000, "prdis": 20000, "dis": 500,
@@ -100,7 +100,7 @@ def test_type1_legal_buyer_needs_tinb(good):
 def test_type1_natural_buyer_with_bid_and_postal_code_ok(good):
     h = good["header"]
     del h["tinb"]
-    h.update(tob=1, bid="0012345678", bpc="1234567890")
+    h.update(tob=1, bid="0012345679", bpc="1234567890")
     assert V.validate(good)["ok"]
     del h["bpc"]
     assert "header.tinb" in paths(V.validate(good))
@@ -163,7 +163,7 @@ def test_zero_vat_patterns(good):
 
 
 def test_wrong_types(good):
-    good["header"]["tins"] = 10101234567           # number instead of digit string
+    good["header"]["tins"] = 10101234565           # number instead of digit string
     good["body"][0]["sstid"] = "23300042192"       # 11 digits
     good["body"][0]["vam"] = 5000000.5             # rial amounts are integers
     good["header"]["inty"] = "1"
