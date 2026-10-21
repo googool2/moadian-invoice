@@ -1,0 +1,34 @@
+# Fuller input for scripts/build_invoice.py — all identifiers are fictitious.
+memory_id: A11216
+seller_tin: "10101234567"
+date: 1405-02-01T10:30:00+03:30
+type: 1
+pattern: 1
+subject: 1
+serial: 27
+settlement: 3             # mixed cash/credit
+cash_amount: 200000000    # cap: cash part EXCLUDING VAT; insp is computed
+buyer:
+  type: 1                 # natural person
+  national_id: "0012345678"
+  postal_code: "1234567890"
+items:
+  - sstid: "2330004219206"
+    description: پرینتر لیزری
+    quantity: 2
+    unit_price: 120000000
+    discount: 4000000
+    vat_rate: 10
+    unit: "1627"
+  - sstid: "2330004219213"
+    description: کارتریج
+    quantity: 5
+    unit_price: 3500000
+    vat_rate: 10
+    unit: "1627"
+extra_header:
+  sbc: "0001"
+payments:
+  - pmt: 4                # POS
+    pv: 220000000
+    pdt: 1776756600000
