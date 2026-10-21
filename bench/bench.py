@@ -189,6 +189,15 @@ def defects(t: dict) -> list[dict]:
     ]
 
 
+def safe_validate(inv: dict, now: int) -> dict:
+    """A validator crash is a failed check, not a crashed benchmark."""
+    try:
+        return validate_invoice.validate(inv, now)
+    except Exception as exc:  # noqa: BLE001 — recorded, never hidden
+        crash = {"path": "$", "message": f"validator crashed: {type(exc).__name__}: {exc}", "rule": "crash"}
+        return {"ok": False, "errors": [crash], "warnings": []}
+
+
 def is_root(issue: dict) -> bool:
     m = issue["message"]
     return "follows from" not in m and "corrected body" not in m
@@ -199,14 +208,14 @@ def run(out_dir: Path) -> dict:
     corpus = traps()
     results = {"traps": [], "defects": []}
     for name, inv in corpus.items():
-        res = validate_invoice.validate(copy.deepcopy(inv), NOW)
+        res = safe_validate(copy.deepcopy(inv), NOW)
         ok = res["ok"] and not res["warnings"]
         results["traps"].append({"name": name, "pass": ok, "errors": [e["path"] + ": " + e["message"] for e in res["errors"]],
                                  "warnings": [w["path"] + ": " + w["message"] for w in res["warnings"]]})
     for spec in defects(corpus):
         inv = copy.deepcopy(corpus[spec["base"]])
         spec["mutate"](inv)
-        res = validate_invoice.validate(inv, spec["now"] if spec["now"] is not None else NOW)
+        res = safe_validate(inv, spec["now"] if spec["now"] is not None else NOW)
         pool = res["errors"] if spec["severity"] == "error" else res["warnings"]
         hit = [i for i in pool if i["path"] == spec["path"] and is_root(i)]
         extra = sorted({e["path"] for e in res["errors"] if is_root(e) and e["path"] != spec["path"]} - spec["also"])

@@ -1,0 +1,21 @@
+{
+  "method": "bench/bench.py from 0.2.0 run against each version's validator (0.1.0 = merge 2111c08, with a no-op _cli shim)",
+  "versions": {
+    "0.1.0": {
+      "traps_clean": "12/13",
+      "defects_caught": "33/37",
+      "failed": [
+        "export-pattern",
+        "return on an export invoice",
+        "seller legal id check digit",
+        "buyer national code check digit",
+        "items sent on a cancellation"
+      ]
+    },
+    "0.2.0": {
+      "traps_clean": "13/13",
+      "defects_caught": "37/37",
+      "failed": []
+    }
+  }
+}
