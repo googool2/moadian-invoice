@@ -90,8 +90,8 @@ How to read it:
 
 **Sources.** Field meanings, the per-pattern required/optional table and the formulas come
 from the official guideline *RC_IITP.IS_V7.8* (اردیبهشت ۱۴۰۵). The taxid algorithm comes from
-*RC_DCPS.SN_V1.3* and the official SDKs. Error codes come from secondary sources and are
-labelled as such. Anything without a source is marked `[UNVERIFIED]`. See
+*RC_DCPS.SN_V1.3* and the official SDKs. Error codes are checked against the official lists
+*RC_TXPS.EC_V02* and *RC_TXPS.RE_V01*; codes seen only in real replies are labelled as such. Anything without a source is marked `[UNVERIFIED]`. See
 `skills/moadian-invoice/references/`.
 
 ## Benchmarks
@@ -105,6 +105,7 @@ and 37 seeded defects that must be reported at the right field, at the root.
 |---|---|---|---|
 | 0.1.0 | 12 / 13 | 33 / 37 | crashed on export invoices and on cancellations with items; no ID check digits |
 | 0.2.0 | **13 / 13** | **37 / 37** | |
+| 0.3.0 | **13 / 13** | **37 / 37** | validator unchanged; error references checked against the official lists |
 
 The benchmark is itself tested. Breaking the validator on purpose (removing the taxid check,
 rounding instead of truncating) makes it fail.
@@ -215,16 +216,19 @@ See [CHANGELOG.md](CHANGELOG.md); versions follow semver. The major version chan
 accepted, rejected or sent changes.
 
 Next:
-- Confirm the error codes against the official EC_V02 list.
+- Read the official V7.9 guideline and confirm `insr`, `nti1` and `nti2`.
 - Run the send path against a real sandbox.
 - Test on real (anonymised) invoices.
 
 ## Limits
 
 - **Sources.** The official PDFs were read from byte copies in a public GitHub repository,
-  because intamedia.ir was unreachable while this was built. Their hashes are in `fields.md`.
-- **Error codes.** All error-code meanings come from secondary sources.
-- **Newer fields.** V7.9-era fields (`insr`, `nti1`, `nti2`) are `[UNVERIFIED]`.
+  because intamedia.ir was unreachable while this was built. Their hashes are in `fields.md`
+  and `errors.md`.
+- **Error codes.** Meanings are checked against the official EC_V02 and RE_V01 lists (اسفند and
+  دی ۱۴۰۲). Codes that appear only in real replies, such as `00107`, still rest on secondary sources.
+- **Newer fields.** V7.9-era fields (`insr`, `nti1`, `nti2`) come from a page-referenced
+  transcription of V7.9, not the PDF itself, and stay `[UNVERIFIED]`.
 - **Not tested on real data:**
   - The send path has only been tested against a fake server, never against the real sandbox
     or the live system.

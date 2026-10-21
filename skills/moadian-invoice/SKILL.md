@@ -52,7 +52,7 @@ its network code; never edit site-packages.
 ## §3 Explain an error code
 `python scripts/explain_error.py 0300101` or `--from-response inquiry.json`. Give meaning, field
 and fix from the output. If `found` is false, say so, give only the `structure` decode and quote
-the system's raw message. Entries are from secondary sources; pass on `[UNVERIFIED]` labels. For
+the system's raw message. Rows with O1/O2 in `source` are confirmed by the official lists; pass on `[UNVERIFIED]` labels. For
 0300101 also run `taxid.py validate` (§5).
 
 ## §4 Explain fields, types, rules

@@ -64,8 +64,8 @@ R11: `tbill = tadis + tvam + todam` is not printed in S1; it follows from R9 + R
 
 ## 5. Dates and identifiers (R21)
 
-- indatim: Unix **ms**, same UTC day as the taxid date part, not in the future (secondary: ~30 s
-  tolerance, errors.md E1), sent within one week (S1 §7-2; secondary logs saw type 1 accepted up
+- indatim: Unix **ms**, same UTC day as the taxid date part, not in the future (rejected when more
+  than 30 000 ms ahead, errors.md O2), sent within one week (S1 §7-2; secondary logs saw type 1 accepted up
   to ~13 days, E4). For ins 2/3/4 later than the reference invoice.
 - cdcd, asd: Unix **days**; pdt: ms at day precision (S1 §7-11, §7-80, §7-59).
 - taxid / inno: see workflow.md §2.

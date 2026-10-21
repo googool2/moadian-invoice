@@ -15,6 +15,7 @@ all of it (its machine-readable copy is `scripts/_spec.py`).
 | L | moadian-full 0.0.2 source (PyPI wheel): `invoice_builder.py`, `tax_id.py`, `verhoeff.py` | library |
 | X1 | github.com/mojtabahakimian/Taxation — wire JSON captured from the official .NET SDK 0.0.34 and SDK shim comments | secondary |
 | X2 | github.com/Mr0Hadi/OurERP — Moadian connection guide (digest of INTA documents) | secondary |
+| X4 | github.com/HekmatBeigverdi/ArginTaxPayer @ `b8f307e` — `docs/phases/phase-01-step-03-rule-traceability.md`, a page-referenced transcription of RC_IITP.IS_V7.9 (تیر ۱۴۰۵; its catalogue gives the PDF's sha256 `fb333770…416be`). The V7.9 PDF itself (maliyaar.ir, intamedia.ir) was unreachable | secondary (transcription of official) |
 | X3 | persian-tools: npm `@persian-tools/persian-tools` 4.0.4 (`verifyIranianNationalId`, `verifyIranianLegalId`) and PyPI `persian-tools` 0.0.11 (`national_id`, `legal_id` + tests). Check-digit algorithms for national codes and legal-entity ids; see `scripts/_ids.py` | secondary (open source) |
 
 Notation: type `str` string, `digits` numeric string (0–9 only, sent as a JSON string), `int`
@@ -76,7 +77,8 @@ although S1 prints `Indati2m` and `Tax17` in places.
 | sg[] (sgid, sgt) | کالاهای حمل شده | Carried goods: 13-digit goods id (checked against stuffid.tax.gov.ir) and description ≤400. Structure not machine-checked | array | P8 M | S1 §7-76…78 |
 | asn, asd | شماره / تاریخ اعلامیه فروش بورس | Exchange sale notice number (digits ≤30) / date (Unix day, int 5) | — | P11 M | S1 §7-79, §7-80 |
 | in, an | شناسه یکتای بیمه‌نامه / الحاقیه | Insurance policy id / endorsement id (from بیمه مرکزی) | digits 9–12 | P13 M / O | S1 §7-81, §7-82 |
-| insr, nti1, nti2 | قاعده ارسال صورتحساب / یادداشت ۱ / ۲ | Not in V7.8. Secondary code says V7.9 added a "send rule" and two notes; the official SDK capture carries them as null [UNVERIFIED] | ? | ? | X1, X2 |
+| insr | قاعده ارسال صورتحساب | Not in V7.8. Added in V7.9 (§6 p.18, §8-84 Table 86 p.93 per X4): for an Article 9 invoice sent after the officially announced window, send `insr = 1` and fill indati2m by its rules; conditional, not required on normal invoices. Other values and the exact deadline rule were not seen [UNVERIFIED]. The official SDK capture carries it as null | ? | C [UNVERIFIED] | X4, X1, X2 |
+| nti1, nti2 | یادداشت ۱ / یادداشت ۲ | Not in V7.8. Free-text notes added in V7.9 (§8-85/8-86, Tables 87/88 p.94 per X4): optional string, at most 30 characters [UNVERIFIED until the V7.9 PDF is read] | str ≤30 | O | X4, X1 |
 
 ## 2. Body item (`body[]`, «بدنه»)
 

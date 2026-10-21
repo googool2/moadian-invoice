@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import sys
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 
 
 def setup_stdout() -> None:
