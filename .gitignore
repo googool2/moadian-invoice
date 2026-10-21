@@ -218,3 +218,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# moadian-invoice: never commit keys, certificates or serial state
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+.env
+serial_history_*.json
+moadian-invoice-workspace/
