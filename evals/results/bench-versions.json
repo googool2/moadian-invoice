@@ -16,6 +16,11 @@
       "traps_clean": "13/13",
       "defects_caught": "37/37",
       "failed": []
+    },
+    "0.3.0": {
+      "traps_clean": "13/13",
+      "defects_caught": "37/37",
+      "failed": []
     }
   }
 }

@@ -1,6 +1,6 @@
 # Validator benchmark
 
-moadian-invoice 0.2.0 · Python 3.13.16 · Linux · 0.015 s
+moadian-invoice 0.3.0 · Python 3.13.16 · Linux · 0.022 s
 
 **PASS** — valid traps clean: 13/13 · seeded defects caught at the root: 37/37
 

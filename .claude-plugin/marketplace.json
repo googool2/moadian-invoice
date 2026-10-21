@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Agent Skill for Iranian Moadian e-invoices (سامانه مودیان)",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "moadian-invoice",
       "source": "./",
       "description": "Build, validate, explain and (with explicit confirmation) send Moadian e-invoice JSON using deterministic scripts.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "license": "MIT",
       "keywords": [
         "moadian",

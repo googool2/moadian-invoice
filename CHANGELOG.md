@@ -10,6 +10,26 @@ All notable changes to this project. Versions follow [semver](https://semver.org
 Before 1.0.0, a minor bump may also include changes of the "major" kind; they are listed
 under **Changed** with the word *behaviour*.
 
+## [0.3.0] — 2026-10-21
+
+### Added
+- Error codes checked against the official lists RC_TXPS.EC_V02 (اسفند ۱۴۰۲) and RC_TXPS.RE_V01
+  (دی ۱۴۰۲), read from byte copies (sources O1, O2 in `errors.md`, with sha256). Every row now
+  says whether the official text confirms it.
+- All API and transport codes from EC_V02 Tables 1–6 with their official messages, including
+  the old v1 API (4001–4024, 4200–4212, 5051–5207) and 04133, 04134, 05139, 05151, 05159.
+- `explain_error.py` maps the short forms used by RE_V01 and vendors (`0301`, `0344`, `011204` …)
+  to the full code (`errors.md` section 7) and decodes detail `10` (invalid JSON).
+- V7.9 fields: `insr` (Article 9 late send, value 1) and `nti1`/`nti2` (notes, ≤ 30 chars) now
+  cite a page-referenced transcription of V7.9. Still `[UNVERIFIED]`: the PDF itself was not reachable.
+
+### Fixed
+- `errors.md` told users that export lines need a non-zero VAT rate (from a secondary digest of
+  RE_V01). EC_V02 and V7.8 §7-41 say vra = 0 on export, which is what the validator checks.
+- Official messages and meanings for 4212 and 5202 (were guesses from user reports), the
+  T=1/03 message template, inquiry status TIMEOUT, and the 30 000 ms future-date limit.
+- 0300902, 0300903 full codes confirmed by EC_V02 Table 7 (were `[UNVERIFIED]`).
+
 ## [0.2.0] — 2026-10-21
 
 ### Added

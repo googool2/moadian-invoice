@@ -1,6 +1,6 @@
 {
   "name": "moadian-invoice",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Build, validate, explain and (with explicit confirmation) send Iranian Moadian (سامانه مودیان) e-invoice JSON using deterministic scripts instead of guesswork.",
   "author": {
     "name": "googool2"
