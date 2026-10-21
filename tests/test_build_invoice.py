@@ -168,3 +168,12 @@ def test_no_description_means_no_sstt(spec, tmp_path):
     res = B.build(spec, state_dir=str(tmp_path))
     assert res["invoice"]["body"][0]["sstt"] is None
     assert V.validate(res["invoice"])["ok"]
+
+
+@needs_lib
+def test_build_report_flags_an_old_invoice_date(tmp_path, capsys):
+    # the example is dated 1405-02-01; the built-in validation now uses the current time
+    rc = B.main([str(EX / "build-input.yaml"), "--state-dir", str(tmp_path)])
+    report = json.loads(capsys.readouterr().out)
+    assert rc == 0 and report["ok"]
+    assert any(w["path"] == "header.indatim" for w in report["validation"]["warnings"])

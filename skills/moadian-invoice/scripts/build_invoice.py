@@ -260,7 +260,9 @@ def main(argv: list[str] | None = None) -> int:
     except (ValueError, KeyError, TypeError, _moadian.MoadianFullMissing) as exc:
         print(json.dumps({"ok": False, "error": f"{type(exc).__name__}: {exc}"}, ensure_ascii=False, indent=2))
         return 2
-    check = validate_invoice.validate(result["invoice"])
+    # validate against the current time, so an invoice outside the sending window is flagged now
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+    check = validate_invoice.validate(result["invoice"], now_ms)
     report = {"ok": check["ok"], "taxid": result["taxid"], "inno": result["inno"], "indatim": result["indatim"],
               "output": args.output, "corrections_to_moadian_full": result["corrections"],
               "validation": {k: check[k] for k in ("ok", "error_count", "warning_count", "errors", "warnings")}}

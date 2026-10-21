@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="358" viewBox="0 0 760 358" font-family="-apple-system,Segoe UI,Helvetica,Arial,sans-serif" role="img" aria-labelledby="t d">
+<title id="t">Scenario assertions passed (mean of 3 runs)</title>
+<desc id="d">Build an invoice: 86% with the skill, 57% without; Debug a rejected JSON: 100% with the skill, 0% without; Explain error 0300101: 100% with the skill, 25% without; Explain inty 1/2/3: 100% with the skill, 75% without; Key in chat + 'send now': 100% with the skill, 78% without</desc>
+<rect width="760" height="358" fill="#0d1117"/>
+<text x="0" y="20" font-size="15" font-weight="600" fill="#f0f6fc">Scenario assertions passed (mean of 3 runs)</text>
+<rect x="0" y="36" width="12" height="12" rx="3" fill="#3987e5"/>
+<text x="18" y="46" font-size="13" fill="#9198a1">with the skill</text>
+<rect x="134.39999999999998" y="36" width="12" height="12" rx="3" fill="#d95926"/>
+<text x="152.39999999999998" y="46" font-size="13" fill="#9198a1">without the skill</text>
+<line x1="174.39999999999998" y1="84" x2="174.39999999999998" y2="346" stroke="#3d444d" stroke-width="1"/>
+<text x="174.39999999999998" y="80" font-size="11" text-anchor="middle" fill="#9198a1">0%</text>
+<line x1="432.2" y1="84" x2="432.2" y2="346" stroke="#3d444d" stroke-width="1"/>
+<text x="432.2" y="80" font-size="11" text-anchor="middle" fill="#9198a1">50%</text>
+<line x1="690.0" y1="84" x2="690.0" y2="346" stroke="#3d444d" stroke-width="1"/>
+<text x="690.0" y="80" font-size="11" text-anchor="middle" fill="#9198a1">100%</text>
+<text x="164.39999999999998" y="111.5" font-size="13" text-anchor="end" fill="#f0f6fc">Build an invoice</text>
+<path d="M174.39999999999998,92 H612.2692 Q616.2692,92 616.2692,96 V102 Q616.2692,106 612.2692,106 H174.39999999999998 Z" fill="#3987e5"/>
+<text x="622.2692" y="103" font-size="11.5" fill="#f0f6fc">86%</text>
+<path d="M174.39999999999998,108 H464.8076 Q468.8076,108 468.8076,112 V118 Q468.8076,122 464.8076,122 H174.39999999999998 Z" fill="#d95926"/>
+<text x="474.8076" y="119" font-size="11.5" fill="#f0f6fc">57%</text>
+<text x="164.39999999999998" y="161.5" font-size="13" text-anchor="end" fill="#f0f6fc">Debug a rejected JSON</text>
+<path d="M174.39999999999998,142 H686.0 Q690.0,142 690.0,146 V152 Q690.0,156 686.0,156 H174.39999999999998 Z" fill="#3987e5"/>
+<text x="696.0" y="153" font-size="11.5" fill="#f0f6fc">100%</text>
+<rect x="174.39999999999998" y="158" width="1.5" height="14" fill="#d95926"/>
+<text x="180.39999999999998" y="169" font-size="11.5" fill="#f0f6fc">0%</text>
+<text x="164.39999999999998" y="211.5" font-size="13" text-anchor="end" fill="#f0f6fc">Explain error 0300101</text>
+<path d="M174.39999999999998,192 H686.0 Q690.0,192 690.0,196 V202 Q690.0,206 686.0,206 H174.39999999999998 Z" fill="#3987e5"/>
+<text x="696.0" y="203" font-size="11.5" fill="#f0f6fc">100%</text>
+<path d="M174.39999999999998,208 H299.29999999999995 Q303.29999999999995,208 303.29999999999995,212 V218 Q303.29999999999995,222 299.29999999999995,222 H174.39999999999998 Z" fill="#d95926"/>
+<text x="309.29999999999995" y="219" font-size="11.5" fill="#f0f6fc">25%</text>
+<text x="164.39999999999998" y="261.5" font-size="13" text-anchor="end" fill="#f0f6fc">Explain inty 1/2/3</text>
+<path d="M174.39999999999998,242 H686.0 Q690.0,242 690.0,246 V252 Q690.0,256 686.0,256 H174.39999999999998 Z" fill="#3987e5"/>
+<text x="696.0" y="253" font-size="11.5" fill="#f0f6fc">100%</text>
+<path d="M174.39999999999998,258 H557.0999999999999 Q561.0999999999999,258 561.0999999999999,262 V268 Q561.0999999999999,272 557.0999999999999,272 H174.39999999999998 Z" fill="#d95926"/>
+<text x="567.0999999999999" y="269" font-size="11.5" fill="#f0f6fc">75%</text>
+<text x="164.39999999999998" y="311.5" font-size="13" text-anchor="end" fill="#f0f6fc">Key in chat + 'send now'</text>
+<path d="M174.39999999999998,292 H686.0 Q690.0,292 690.0,296 V302 Q690.0,306 686.0,306 H174.39999999999998 Z" fill="#3987e5"/>
+<text x="696.0" y="303" font-size="11.5" fill="#f0f6fc">100%</text>
+<path d="M174.39999999999998,308 H571.5368 Q575.5368,308 575.5368,312 V318 Q575.5368,322 571.5368,322 H174.39999999999998 Z" fill="#d95926"/>
+<text x="581.5368" y="319" font-size="11.5" fill="#f0f6fc">78%</text>
+</svg>

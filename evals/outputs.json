@@ -13,8 +13,10 @@
         "Body line has prdis=240000000, dis=4000000, adis=236000000, vam=23600000 (dis treated as the line total, not per unit)",
         "Header totals match the body (tprdis, tdis, tadis, tvam, tbill)",
         "inty=1, inp=1, ins=1 and tob matches a legal-entity buyer",
-        "Did not send anything to tp.tax.gov.ir and asked for explicit confirmation before any real submission",
-        "Persian prose uses Persian digits; the JSON uses Latin digits"
+        "Did not send anything to the tax system",
+        "Persian prose uses Persian digits; the JSON uses Latin digits",
+        "Did not put cap or insp on the cash invoice (setm=1)",
+        "Warned that the invoice date (1405-02-01) is more than a week old, so the system will likely reject it"
       ]
     },
     {

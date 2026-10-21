@@ -45,7 +45,7 @@ def pass_rate_chart(data: dict, theme: str) -> str:
     rows = data["scenarios"]
     label_w = max(text_w(r["label"]) for r in rows) + 16
     width, plot_w = 760, 760 - label_w - 70
-    bar_h, gap, group_gap, top = 14, 2, 20, 74
+    bar_h, gap, group_gap, top = 14, 2, 20, 92
     group_h = 2 * bar_h + gap
     height = top + len(rows) * (group_h + group_gap) + 16
     assert label_w < 300, "labels too long for the chart"

@@ -36,7 +36,8 @@ its network code; never edit site-packages.
    `examples/build-input.yaml`), then `python scripts/build_invoice.py input.yaml -o invoice.json`.
    Use `--serial` only for the user's own serial sequence.
 4. If the report's `ok` is false, fix the input and rebuild; never hand-edit numbers. Tell the user
-   type/pattern, taxid, `tbill`, warnings — two or three lines. Building is not sending.
+   type/pattern, taxid, `tbill` and every warning — above all an `indatim` older than a week (the
+   system will likely reject it). Two or three lines. Building is not sending.
 
 ## §2 Validate or debug
 `python scripts/validate_invoice.py invoice.json --text` (add `--now <epoch-ms>` for the date window).

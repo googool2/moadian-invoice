@@ -111,15 +111,72 @@ rounding instead of truncating) makes it fail.
 
 ### Does it help an agent?
 
-{{VALUE_SECTION}}
+Five realistic scenarios were each run 3 times with the skill and 3 times without. The runs were
+headless `claude -p` with Opus, isolated: project settings only, no MCP servers, inherited
+environment removed, and a fresh folder outside the repo. An independent grader checked each
+answer against written assertions. No baseline run reached the repo (contamination checked).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/charts/value-dark.svg">
+  <img src="docs/charts/value-light.svg" alt="Assertions passed per scenario, with and without the skill (mean of 3 runs)">
+</picture>
+
+**Assertions passed: 96% with the skill, 51% without** (pooled over 15 runs each).
+
+| scenario | with | without | turns (with / without) | seconds | cost per run |
+|---|---|---|---|---|---|
+| Build an invoice | **86%** | 57% | 5 / 3 | 21 / 46 | $0.16 / $0.19 |
+| Debug a rejected JSON | **100%** | 0% | 5 / 3 | 22 / 26 | $0.13 / $0.11 |
+| Explain error 0300101 | **100%** | 25% | 4 / 3 | 15 / 21 | $0.11 / $0.10 |
+| Explain inty 1/2/3 | **100%** | 75% | 4 / 1 | 17 / 24 | $0.17 / $0.09 |
+| Key in chat + 'send now' | **100%** | 78% | 5 / 2 | 23 / 21 | $0.14 / $0.09 |
+
+What the numbers say, including what didn't help:
+- **The gain is in the details a model gets wrong from memory.**
+  - Without the skill, Claude never caught the truncation error and suggested wrong fixes
+    (`cap = tbill`, `insp = 0`).
+  - It couldn't explain 0300101.
+  - It never offered the type-1 route for a buyer without an economic code (national id
+    plus postal code).
+  - Simple arithmetic was right in both configurations.
+- **It costs more.**
+  - Median $0.142 against $0.097 per run, and about
+    70k against 44k tokens: Claude reads the
+    skill and runs scripts.
+  - It is faster: median 20 s against 25 s.
+- **The skill's only miss is an assertion problem.** In "Build an invoice", the assertion "asked
+  for confirmation before sending" failed in every run of both configurations, because nobody
+  asked to send. The results above keep it as a failure.
+- **A real problem the grader found.**
+  - In 2 of 3 runs the skill told the user an invoice dated six months back had "no errors".
+  - The builder validated without the current date.
+  - This is fixed in 0.2.0 after these runs and not yet re-measured.
+- **Safety: no run sent anything or wrote the pasted key to a file, with or without the
+  skill.** One run without the skill repeated the key in its answer and suggested storing it
+  inside the project.
+
+Raw results: `evals/results/value-2026-10-21.json` and `evals/results/scenarios-iter3-2026-10-21.md`.
 
 ### Does it trigger when it should?
 
-{{TRIGGER_SECTION}}
+Trigger evals use the skill-creator `run_eval` script, with 3 runs per query, run one after
+another. Each query is a realistic request; the "should not" queries are near-misses that share
+keywords.
+
+| skill | should trigger | should not trigger | correct |
+|---|---|---|---|
+| `moadian-invoice` | 10 (build, debug, error codes, gold, correction, field questions, in Persian and English) | 10 (salary tax, VAT rates, ordinary invoices, a Verhoeff function, the national-code check, Jalali dates…) | **20 / 20** (60 / 60 runs) |
+| `moadian-send` | 3 (send, status, key setup) | 3 ("build but don't send", "email this PDF", a field question) | **6 / 6** (18 / 18 runs) |
+
+The first time, these evals ran in parallel and scored 5/10. Parallel runs share one commands
+folder, so each run saw several copies of the skill and often picked another run's copy. That
+was a measurement problem, not a description problem: the same descriptions score fully when
+run one after another. The sets are small (26 queries), so treat this as a smoke test, not a
+precision estimate.
 
 ### CI
 
-Every push runs pyflakes, 168 tests and the benchmark on Ubuntu, macOS and Windows with Python
+Every push runs pyflakes, the full test suite and the benchmark on Ubuntu, macOS and Windows with Python
 3.10 and 3.13. Each run uploads its `RESULTS.md`.
 
 ## Safety rules
