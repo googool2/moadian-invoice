@@ -1,8 +1,9 @@
 # Workflow: keys, certificate, serial, sending, inquiry
 
 Read this when the user wants to actually send an invoice, set up keys, or understands the taxid.
-The scripts in this skill never sign or send; sending goes through moadian-full's `Moadian`
-client, **only after the user explicitly confirms**.
+Only `scripts/send_invoice.py` signs and sends. It uses moadian-full's `Moadian` client and
+sends **only after the user explicitly confirms**, through a two-step `prepare` → `send --confirm`
+flow (§5).
 
 Sources: S3 = RC_DCPS.SN_V1.3 (official); L = moadian-full 0.0.2 source; T1 = official Java SDK
 mirror github.com/SoftwareNasr/ir.gov.tax.tpis.sdk `TaxUtils.java`; T2 = official .NET SDK
@@ -38,21 +39,22 @@ key) → invoice JSON signed (JWS) then encrypted (JWE RSA-OAEP-256 / A256GCM) �
 `GET inquiry-by-uid` / `inquiry-by-reference-id`. Status values: SUCCESS, FAILED, IN_PROGRESS,
 NOT_FOUND; TIMEOUT means **not registered** (errors.md §4).
 
-Using L safely from Python (only after confirmation):
+Send-path defects in L. `send_invoice.py` fixes these at run time without modifying the
+installed library:
 
-```python
-import os, sys; sys.path.insert(0, "scripts")
-import importlib, _moadian; _moadian.load()           # registers the package under a safe name
-main = importlib.import_module("_moadian_full_offline.main")  # this one imports requests/authlib
-with open(os.environ["MOADIAN_PRIVATE_KEY_PATH"], "rb") as f: key = f.read()
-with open(os.environ["MOADIAN_CERT_PATH"], "rb") as f: cert = f.read()
-client = main.Moadian(os.environ["MOADIAN_MEMORY_ID"], key, cert)
-# client.send_invoice(json.dumps(invoice, ensure_ascii=False))   <- only after explicit "yes"
-```
+| defect in L | effect | fix in `send_invoice.py` |
+|---|---|---|
+| `encryption.py` sets the JWS `sigT` once, at import | a long-running process signs with a stale time [effect on the server UNVERIFIED] | sets `sigT` to the current time on every signature |
+| `_get_tax_gov_key` caches the server public key forever in the system temp dir (`tax_gov_key`) | key rotation is never picked up, and sandbox and live share one cached key | fetches `server-information` once per run, in memory only |
+| URLs are hard-coded to live in `settings.py` | no way to target a sandbox | URLs are rebuilt from the chosen target's base URL |
+| `load_pem_private_key(password=None)` | password-protected keys are rejected | decrypts with `MOADIAN_PRIVATE_KEY_PASSWORD` in memory; nothing is written |
+| HTTP errors are re-raised as a plain `Exception` | callers cannot tell what happened | reported as JSON with a reminder to run `inquiry` before any resend |
 
-Caveats in L worth telling the user: `encryption.py` computes the signature time `sigT` once at
-import, so a long-running process signs with a stale time [behaviour from source; effect on the
-server UNVERIFIED]; `_get_tax_gov_key` caches the server key in the system temp dir.
+Base URLs:
+- **Live:** `https://tp.tax.gov.ir/requestsmanager/api/v2/` (RC_TICS.IS v1.6).
+- **Sandbox:** not in the official spec or the SDK samples (the SDK takes any base URL).
+  T3 used host `sandboxrc.tax.gov.ir`, but the full API path is [UNVERIFIED]. The user must set
+  `MOADIAN_SANDBOX_BASE_URL` from their trusted company / INTA.
 
 ## 3. taxid and inno (S3, T1, T2)
 
@@ -93,10 +95,26 @@ uses the validation permutation). Two real accepted taxids from T3 (`A41XRD050B1
   Two machines sending for the same memory id can still collide; give each a separate serial range.
 - S1 §7-5 asks for ascending serials; time-based serials satisfy that within one process.
 
-## 5. Before sending — checklist
+## 5. Sending — two steps
 
-1. `python scripts/validate_invoice.py invoice.json --now <current ms>` → `ok: true`, warnings read.
-2. `python scripts/taxid.py validate <taxid> --indatim <indatim> --inno <inno>` → ok.
-3. Show the user: type/pattern/subject, buyer, line count, tbill, taxid, target (sandbox or live).
-4. Wait for explicit confirmation. Then send once; record the returned `uid` and `referenceNumber`.
-5. Inquire later (processing is asynchronous); on FAILED run `scripts/explain_error.py --from-response`.
+1. `python scripts/send_invoice.py prepare invoice.json --target sandbox|live`. This step is
+   offline and needs no key. It:
+   - runs the validator with the current time;
+   - blocks invoices more than one week old (S1 §7-2; the validator alone only warns);
+   - blocks a taxid that already has a receipt;
+   - prints a summary and a confirmation code (a hash of the exact JSON, target and base URL).
+2. Show the user the type/pattern/subject, buyer, line count, tbill, taxid and target, and get an
+   explicit yes for this invoice.
+3. `python scripts/send_invoice.py send invoice.json --target … --confirm <code>`. This step:
+   - re-checks everything and refuses if the code does not match;
+   - reads the key and certificate from the environment variables only, and refuses a key that
+     sits inside a git repository;
+   - for live, also needs `MOADIAN_ALLOW_LIVE=1`, set by the user.
+
+   The receipt (uid, referenceNumber, response; no secrets) is written to
+   `~/.moadian-invoice/receipts/<taxid>.json`.
+4. Processing is asynchronous: `send_invoice.py inquiry --target … --uid <uid>`. On FAILED run
+   `scripts/explain_error.py --from-response`. After a network error during `send`, run `inquiry`
+   first: the invoice may already be registered, and a resent taxid is rejected (0300101).
+
+`send_invoice.py fiscal-info --target …` is a read-only connection test for the memory id.

@@ -23,8 +23,8 @@ This skill removes the guessing:
 - **Sourced references.** Every field meaning, type, enumeration and formula is cited to the
   official INTA guideline *RC_IITP.IS_V7.8* (اردیبهشت ۱۴۰۵) or another named source. Anything
   unsourced is marked `[UNVERIFIED]`.
-- **Deterministic scripts.** These are offline Python scripts with no LLM, no network and only the
-  standard library, plus `moadian-full` for the builder:
+- **Deterministic scripts.** These are Python scripts with no LLM. All but one are offline and use
+  only the standard library; the builder and the sender also use `moadian-full`:
 
   | script | does |
   |---|---|
@@ -32,13 +32,14 @@ This skill removes the guessing:
   | `scripts/build_invoice.py` | thin wrapper over moadian-full's `InvoiceBuilder`: simple YAML/JSON in, invoice JSON out, every library defect corrected and listed |
   | `scripts/taxid.py` | generates, validates and decodes the 22-character taxid with the official algorithm |
   | `scripts/explain_error.py` | turns an error code into its meaning and fix, and decodes the code structure when the code is not in the list |
+  | `scripts/send_invoice.py` | the only networked script. `prepare` (offline) validates and prints a confirmation code; `send --confirm <code>` signs and sends through moadian-full's client with its send-path bugs fixed; `inquiry` and `fiscal-info` are read-only |
 
 - **Guard rails.** Keys are read only from files or environment variables. Nothing is sent
   without the user's explicit confirmation. The skill says plainly that it is not tax advice.
 
 ## Install
 
-The scripts need Python 3.10+. Only `build_invoice.py` needs the library:
+The scripts need Python 3.10+. Only `build_invoice.py` and `send_invoice.py` need the library:
 
 ```bash
 pip install moadian-full
@@ -102,7 +103,7 @@ validation: ok, 0 errors, 0 warnings
 ```
 SKILL.md            instructions Claude follows (English, ~150 lines)
 references/         fields.md, invoice-types.md, arithmetic-rules.md, errors.md, workflow.md
-scripts/            the four CLIs + helpers (_spec.py = machine-readable field spec)
+scripts/            the five CLIs + helpers (_spec.py = machine-readable field spec)
 examples/           valid minimal/full invoices, an invoice with arithmetic errors, builder inputs
 tests/              pytest suite (pip install pytest moadian-full; pytest)
 evals/              triggers.json (trigger eval), outputs.json (scenario eval), results/
@@ -138,8 +139,15 @@ evals/              triggers.json (trigger eval), outputs.json (scenario eval), 
   national codes and 11-digit legal-entity ids. That algorithm comes from open-source libraries,
   not from INTA, so a failure is a warning. 12-digit foreign codes, 14-digit economic codes and
   civil-partnership ids are not checked.
-- **No signing or sending.** The scripts never sign or send. Sending goes through moadian-full's
-  client after explicit confirmation; see `references/workflow.md`.
+- **Sending.** Only `send_invoice.py` signs or sends, and it needs four things:
+  - a confirmation code issued by `prepare` for that exact file and target;
+  - keys supplied only through environment variables;
+  - for live, `MOADIAN_ALLOW_LIVE=1`, set by the user;
+  - for sandbox, a URL the user provides. The official spec gives no sandbox URL, so the
+    skill does not ship one.
+
+  The send path is tested only against a fake server. It has not been run against the real
+  sandbox or live system. See `references/workflow.md`.
 - **Licence.** `moadian-full` is GPL-3.0. This skill is MIT and does not bundle it; it imports
   it at run time.
 - **Not tax advice.** The skill checks format and arithmetic against INTA documents. It does not

@@ -21,7 +21,8 @@ Scripts live in `scripts/` next to this file (use the skill's absolute path). Py
 - `build_invoice.py` needs `pip install moadian-full`. Its package folder is named
   `moadian-full`, so `import moadian_full` fails; `scripts/_moadian.py` loads it correctly and
   without importing any network code. Never "fix" this by editing site-packages.
-- No script touches the network, signs, or sends.
+- Only `send_invoice.py` touches the network, and only through its `send`, `inquiry` and
+  `fiscal-info` commands (§6). Its `prepare` command and every other script are offline.
 
 ## Decide what the user needs
 
@@ -123,15 +124,27 @@ produces wrong check digits, so never use it directly.
 
 ## §6 Sending and inquiry
 
-Read `references/workflow.md` first. Then:
+Read `references/workflow.md` first. Sending is two steps with `scripts/send_invoice.py`:
 
-1. Validate (with `--now`) and check the taxid.
-2. Show the user what would be sent: type and pattern, buyer, tbill, taxid, and whether it goes
-   to sandbox or live.
-3. Send only after the user explicitly says to send this invoice. Their original request
-   ("build and send") does not count as confirmation. Confirm each send separately.
-4. After sending, record the uid and reference number and inquire later. If the status is FAILED,
-   follow §3.
+1. `python scripts/send_invoice.py prepare invoice.json --target sandbox` (or `live`). This is
+   offline: it validates (including the one-week date window), refuses a taxid that already has
+   a receipt, and prints a summary and a confirmation code bound to this exact file and target.
+2. Show the user the summary: type and pattern, buyer, tbill, taxid, and sandbox or live. Ask
+   whether to send. Their original request ("build and send") does not count as confirmation;
+   confirm each send separately.
+3. Only after an explicit yes, run
+   `python scripts/send_invoice.py send invoice.json --target sandbox --confirm <code>`.
+   - If the file or target changed after `prepare`, the code no longer matches and nothing is sent.
+   - Keys come only from environment variables (`MOADIAN_MEMORY_ID`, `MOADIAN_PRIVATE_KEY_PATH`,
+     `MOADIAN_CERT_PATH`). If they are missing, tell the user which ones to set in their own
+     shell. Never ask for the key contents.
+   - `--target live` also needs `MOADIAN_ALLOW_LIVE=1`. The user sets it themselves; never set
+     it for them in a command.
+   - `--target sandbox` needs `MOADIAN_SANDBOX_BASE_URL`, which the user gets from their
+     trusted company or INTA. There is no sourced sandbox URL to suggest.
+4. Report the uid and reference number. Processing is asynchronous: check later with
+   `send_invoice.py inquiry --target … --uid <uid>`. If the status is FAILED, follow §3.
+   If `send` fails with a network error, run `inquiry` before considering a resend.
 
 ## Rules you must not bend
 

@@ -160,3 +160,11 @@ def test_no_unit_means_no_mu(spec, tmp_path):
     res = B.build(spec, state_dir=str(tmp_path))
     assert res["invoice"]["body"][0]["mu"] is None  # not moadian-full's default "164"
     assert any(c["path"] == "body[0].mu" and c["moadian_full"] == "164" for c in res["corrections"])
+
+
+@needs_lib
+def test_no_description_means_no_sstt(spec, tmp_path):
+    del spec["items"][0]["description"]
+    res = B.build(spec, state_dir=str(tmp_path))
+    assert res["invoice"]["body"][0]["sstt"] is None
+    assert V.validate(res["invoice"])["ok"]
